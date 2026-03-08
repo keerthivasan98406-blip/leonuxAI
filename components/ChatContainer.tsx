@@ -1,0 +1,213 @@
+
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { Message, MessageRole } from '../types';
+import { MessageItem } from './MessageItem';
+import { processFile, ProcessedFile } from '../services/fileProcessingService';
+
+interface ChatContainerProps {
+  messages: Message[];
+  isLoading: boolean;
+  onSend: (text: string, imageBase64?: string, fileContent?: string) => void;
+  chatEndRef: React.RefObject<HTMLDivElement>;
+}
+
+export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading, onSend, chatEndRef }) => {
+  const [inputValue, setInputValue] = useState('');
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<ProcessedFile | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputValue.trim() && !isLoading && !isProcessing) {
+      // For PPT and images, use vision; for PDF use text content
+      const imageData = uploadedFile?.requiresVision ? uploadedFile.content : uploadedImage;
+      const textData = uploadedFile && !uploadedFile.requiresVision ? uploadedFile.content : undefined;
+      
+      onSend(inputValue, imageData || undefined, textData);
+      setInputValue('');
+      setUploadedImage(null);
+      setUploadedFile(null);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsProcessing(true);
+    
+    try {
+      const processed = await processFile(file);
+      setUploadedFile(processed);
+      
+      if (processed.type === 'image') {
+        setUploadedImage(processed.content);
+      }
+    } catch (error: any) {
+      alert(error.message || 'Failed to process file');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const removeFile = () => {
+    setUploadedImage(null);
+    setUploadedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 150)}px`;
+    }
+  }, [inputValue]);
+
+  // Memoize message list to prevent unnecessary re-renders
+  const messageList = useMemo(() => 
+    messages.map((msg) => <MessageItem key={msg.id} message={msg} />),
+    [messages]
+  );
+
+  return (
+    <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
+        style={{
+          backgroundImage: 'url(https://i.pinimg.com/736x/7a/98/7c/7a987c82ec870c0a4324fc357db66ea2.jpg)'
+        }}
+      ></div>
+      
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a]/80 via-[#212121]/70 to-[#1a1a1a]/80"></div>
+
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto relative z-10">
+        <div className="max-w-3xl mx-auto w-full px-4 py-8">
+          {messageList}
+          <div ref={chatEndRef} />
+        </div>
+      </div>
+
+      {/* Input Area */}
+      <div className="flex-shrink-0 border-t border-emerald-500/10 bg-[#1a1a1a]/90 backdrop-blur-xl relative z-10">
+        <div className="max-w-3xl mx-auto w-full px-4 py-4 md:py-6">
+          <form 
+            onSubmit={handleSubmit}
+            className="relative group"
+          >
+            {/* Glow effect */}
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-3xl opacity-0 group-focus-within:opacity-20 blur transition-opacity duration-300"></div>
+            
+            {/* File Preview */}
+            {uploadedFile && (
+              <div className="mb-3 relative inline-block max-w-full">
+                {uploadedFile.requiresVision ? (
+                  <div className="relative">
+                    {uploadedFile.type === 'image' ? (
+                      <img src={uploadedFile.content} alt="Upload preview" className="max-h-32 rounded-lg border border-emerald-500/30" />
+                    ) : (
+                      <div className="px-4 py-3 bg-purple-500/10 border border-purple-500/30 rounded-lg flex items-center gap-3">
+                        <i className="fa-solid fa-file-powerpoint text-2xl text-purple-400"></i>
+                        <div className="flex-1">
+                          <div className="text-sm text-white font-medium">{uploadedFile.fileName}</div>
+                          <div className="text-xs text-gray-400">PowerPoint - Will be analyzed visually</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="px-4 py-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg flex items-center gap-3">
+                    <i className="fa-solid fa-file-pdf text-2xl text-emerald-400"></i>
+                    <div className="flex-1">
+                      <div className="text-sm text-white font-medium">{uploadedFile.fileName}</div>
+                      <div className="text-xs text-gray-400">PDF text extracted</div>
+                    </div>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={removeFile}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white text-xs shadow-lg z-10"
+                >
+                  <i className="fa-solid fa-times"></i>
+                </button>
+              </div>
+            )}
+            
+            {isProcessing && (
+              <div className="mb-3 px-4 py-3 bg-blue-500/10 border border-blue-500/30 rounded-lg flex items-center gap-3">
+                <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm text-blue-400">Processing file...</span>
+              </div>
+            )}
+            
+            <div className="relative flex items-end gap-2 bg-[#2a2a2a]/95 backdrop-blur-sm rounded-3xl px-3 md:px-4 py-2.5 md:py-3 shadow-2xl border border-emerald-500/20 group-focus-within:border-emerald-500/40 transition-all">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,.pdf,.ppt,.pptx,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                onChange={handleFileUpload}
+                className="hidden"
+                disabled={isProcessing}
+              />
+              <button 
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isProcessing}
+                className="flex-shrink-0 p-2 text-gray-500 hover:text-emerald-400 transition-colors rounded-lg hover:bg-emerald-500/10 disabled:opacity-50"
+                title="Upload image, PDF, or PowerPoint"
+              >
+                <i className="fa-solid fa-paperclip text-base md:text-lg"></i>
+              </button>
+              
+              <textarea
+                ref={textareaRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type your message..."
+                className="flex-1 bg-transparent border-none outline-none resize-none text-sm md:text-[15px] text-white placeholder:text-gray-600 leading-6 max-h-[200px] min-w-0"
+                rows={1}
+              />
+
+              <button
+                type="submit"
+                disabled={!inputValue.trim() || isLoading}
+                className={`flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
+                  inputValue.trim() && !isLoading 
+                    ? 'bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 active:scale-95' 
+                    : 'bg-[#3a3a3a] text-gray-600'
+                }`}
+              >
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-gray-600 border-t-emerald-400 rounded-full animate-spin"></div>
+                ) : (
+                  <i className="fa-solid fa-arrow-up text-sm"></i>
+                )}
+              </button>
+            </div>
+          </form>
+          
+          <p className="text-center text-xs text-gray-600 mt-3 flex items-center justify-center gap-2">
+            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+            Powered by leonux AI • 
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
