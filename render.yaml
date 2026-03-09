@@ -12,4 +12,4 @@ services:
       - key: NODE_VERSION
         value: 20
       - key: VITE_OPENROUTER_API_KEY
-        sync: false
+        value: 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
