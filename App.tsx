@@ -404,8 +404,8 @@ const App: React.FC = () => {
         />
         
         <main className="flex-1 flex flex-col min-w-0 relative">
-          {/* Mobile Header - Simple and reliable */}
-          <div className="lg:hidden bg-gray-900 border-b border-gray-700 px-4 py-3 flex items-center justify-between">
+          {/* Mobile Header - Fixed and always visible */}
+          <div className="lg:hidden mobile-header-fixed fixed top-0 left-0 right-0 z-50 bg-gray-900 border-b border-gray-700 px-4 py-3 flex items-center justify-between">
             <button 
               onClick={() => setIsSidebarOpen(true)}
               className="text-white text-xl p-2"
@@ -421,6 +421,9 @@ const App: React.FC = () => {
             </div>
             <div className="w-10"></div>
           </div>
+
+          {/* Spacer for fixed header on mobile */}
+          <div className="lg:hidden h-16 flex-shrink-0"></div>
 
           {/* Subtle background effects */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
