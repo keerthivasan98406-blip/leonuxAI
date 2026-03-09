@@ -404,26 +404,25 @@ const App: React.FC = () => {
         />
         
         <main className="flex-1 flex flex-col min-w-0 relative">
-          {/* Mobile Header - Fixed and compact */}
-          <div className="lg:hidden mobile-header-fixed fixed top-0 left-0 right-0 z-50 bg-gray-900 border-b border-gray-700 px-3 py-2 flex items-center justify-between">
+          {/* Mobile Header - Slide down on scroll up */}
+          <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-gray-900 border-b border-gray-700 px-4 py-2 flex items-center justify-between transform transition-transform duration-300 h-12">
             <button 
               onClick={() => setIsSidebarOpen(true)}
-              className="text-white text-lg p-1"
+              className="text-white text-base"
               aria-label="Open menu"
             >
               ☰
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+              <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                 L
               </div>
-              <span className="text-emerald-400 font-semibold text-xs">Leonux AI</span>
+              <span className="text-emerald-400 font-medium text-sm">Leonux AI</span>
             </div>
-            <div className="w-8"></div>
+            <div className="w-6"></div>
           </div>
 
-          {/* Spacer for fixed header on mobile - reduced height */}
-          <div className="lg:hidden h-12 flex-shrink-0"></div>
+          {/* No spacer needed for auto-hide header */}
 
           {/* Subtle background effects */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
