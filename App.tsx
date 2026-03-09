@@ -404,26 +404,26 @@ const App: React.FC = () => {
         />
         
         <main className="flex-1 flex flex-col min-w-0 relative">
-          {/* Mobile Header - Fixed and always visible */}
-          <div className="lg:hidden mobile-header-fixed fixed top-0 left-0 right-0 z-50 bg-gray-900 border-b border-gray-700 px-4 py-3 flex items-center justify-between">
+          {/* Mobile Header - Fixed and compact */}
+          <div className="lg:hidden mobile-header-fixed fixed top-0 left-0 right-0 z-50 bg-gray-900 border-b border-gray-700 px-3 py-2 flex items-center justify-between">
             <button 
               onClick={() => setIsSidebarOpen(true)}
-              className="text-white text-xl p-2"
+              className="text-white text-lg p-1"
               aria-label="Open menu"
             >
               ☰
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+              <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                 L
               </div>
-              <span className="text-emerald-400 font-semibold text-sm">Leonux AI</span>
+              <span className="text-emerald-400 font-semibold text-xs">Leonux AI</span>
             </div>
-            <div className="w-10"></div>
+            <div className="w-8"></div>
           </div>
 
-          {/* Spacer for fixed header on mobile */}
-          <div className="lg:hidden h-16 flex-shrink-0"></div>
+          {/* Spacer for fixed header on mobile - reduced height */}
+          <div className="lg:hidden h-12 flex-shrink-0"></div>
 
           {/* Subtle background effects */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
