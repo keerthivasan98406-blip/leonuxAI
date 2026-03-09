@@ -1,7 +1,7 @@
 import { ModelType, ChatHistoryItem } from "../types";
 import { getUserProfile, updateUserProfile, formatUserProfileForAI } from "./userProfileService";
 
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY as string;
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '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';
 
 // Debug: Check if API key is loaded
 console.log('API Key loaded:', OPENROUTER_API_KEY ? 'Yes (length: ' + OPENROUTER_API_KEY.length + ')' : 'No');
