@@ -422,7 +422,8 @@ const App: React.FC = () => {
             <div className="w-6"></div>
           </div>
 
-          {/* No spacer needed for auto-hide header */}
+          {/* Spacer for fixed header - CRITICAL for preventing content overlap */}
+          <div className="lg:hidden h-12 flex-shrink-0 bg-transparent"></div>
 
           {/* Subtle background effects */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
