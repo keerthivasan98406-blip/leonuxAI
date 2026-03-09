@@ -97,8 +97,8 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto relative z-10">
         <div className="max-w-3xl mx-auto w-full px-4 py-8 lg:py-8">
-          {/* Mobile header spacer */}
-          <div className="lg:hidden h-4"></div>
+          {/* Mobile header spacer - INCREASED */}
+          <div className="lg:hidden h-8"></div>
           {messageList}
           <div ref={chatEndRef} />
         </div>

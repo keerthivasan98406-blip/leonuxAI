@@ -66,9 +66,14 @@
         transform: translateZ(0); /* Force hardware acceleration */
         -webkit-transform: translateZ(0);
         will-change: transform;
-        height: 40px !important; /* Fixed compact height */
-        min-height: 40px !important;
-        max-height: 40px !important;
+        height: 48px !important; /* Fixed height */
+        min-height: 48px !important;
+        max-height: 48px !important;
+      }
+      
+      /* Ensure content starts below header */
+      .chat-content-mobile {
+        padding-top: 64px !important; /* Extra padding for mobile */
       }
       
       /* Prevent mobile browser address bar from affecting layout */

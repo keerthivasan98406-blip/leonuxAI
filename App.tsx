@@ -70,7 +70,7 @@ const App: React.FC = () => {
   const getWelcomeMessage = (): Message => ({
     id: 'welcome',
     role: MessageRole.LEONUX,
-    content: "Leonux Hub Online. Imaging and Motion engines ready. How shall we proceed?",
+    content: "LeonuxAI.Online. Imaging and Motion engines ready. How shall we proceed?",
     timestamp: new Date()
   });
 
@@ -404,7 +404,7 @@ const App: React.FC = () => {
         />
         
         <main className="flex-1 flex flex-col min-w-0 relative">
-          {/* Mobile Header - Slide down on scroll up */}
+          {/* Mobile Header - Fixed with proper logo */}
           <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-gray-900 border-b border-gray-700 px-4 py-2 flex items-center justify-between transform transition-transform duration-300 h-12">
             <button 
               onClick={() => setIsSidebarOpen(true)}
@@ -414,16 +414,32 @@ const App: React.FC = () => {
               ☰
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                L
+              <div className="w-6 h-6 rounded-full bg-white border border-emerald-400 flex items-center justify-center overflow-hidden">
+                <img 
+                  src="/leonux-logo.png" 
+                  alt="Leonux" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    const sibling = target.nextElementSibling as HTMLElement;
+                    target.style.display = 'none';
+                    if (sibling) sibling.style.display = 'block';
+                  }}
+                />
+                <span 
+                  className="text-emerald-400 text-xs font-bold" 
+                  style={{ display: 'none' }}
+                >
+                  L
+                </span>
               </div>
               <span className="text-emerald-400 font-medium text-sm">Leonux AI</span>
             </div>
             <div className="w-6"></div>
           </div>
 
-          {/* Spacer for fixed header - CRITICAL for preventing content overlap */}
-          <div className="lg:hidden h-12 flex-shrink-0 bg-transparent"></div>
+          {/* Spacer for fixed header - INCREASED HEIGHT */}
+          <div className="lg:hidden h-16 flex-shrink-0 bg-transparent"></div>
 
           {/* Subtle background effects */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
