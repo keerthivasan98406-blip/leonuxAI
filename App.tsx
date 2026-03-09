@@ -456,8 +456,12 @@ const App: React.FC = () => {
               <i className="fa-solid fa-bars text-lg"></i>
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center">
-                <i className="fa-solid fa-sparkles text-white text-xs"></i>
+              <div className="w-6 h-6 rounded-full bg-white border border-emerald-400 flex items-center justify-center overflow-hidden">
+                <img 
+                  src="/leonux-logo.png" 
+                  alt="Leonux" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <h1 className="text-sm font-semibold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Leonux AI</h1>
             </div>
