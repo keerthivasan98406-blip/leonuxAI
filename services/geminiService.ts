@@ -1,7 +1,11 @@
 import { ModelType, ChatHistoryItem } from "../types";
 import { getUserProfile, updateUserProfile, formatUserProfileForAI } from "./userProfileService";
 
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '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';
+
+// Debug logging for API key (only show first/last 4 characters for security)
+const debugKey = OPENROUTER_API_KEY ? `${OPENROUTER_API_KEY.slice(0, 8)}...${OPENROUTER_API_KEY.slice(-8)}` : 'NOT_FOUND';
+console.log('API Key Status:', debugKey);
 
 if (!OPENROUTER_API_KEY) {
   console.error('OpenRouter API key not found. Please set VITE_OPENROUTER_API_KEY in your environment variables.');
