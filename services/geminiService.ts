@@ -3,6 +3,10 @@ import { getUserProfile, updateUserProfile, formatUserProfileForAI } from "./use
 
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY as string;
 
+// Debug: Check if API key is loaded
+console.log('API Key loaded:', OPENROUTER_API_KEY ? 'Yes (length: ' + OPENROUTER_API_KEY.length + ')' : 'No');
+console.log('API Key starts with:', OPENROUTER_API_KEY?.substring(0, 15));
+
 export const chatWithLeonux = async (
   prompt: string,
   history: ChatHistoryItem[],
