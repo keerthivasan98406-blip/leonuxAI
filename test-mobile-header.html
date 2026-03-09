@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Header Test</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-900 text-white">
+  <div class="min-h-screen">
+    <!-- Mobile Header Test -->
+    <div class="lg:hidden flex items-center justify-between px-4 py-3 border-b border-emerald-500/10 bg-[#1a1a1a]/80 backdrop-blur-xl relative z-10">
+      <button class="p-2 text-gray-300 hover:text-emerald-400 transition-colors">
+        <i class="fa-solid fa-bars text-lg"></i>
+      </button>
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded-full bg-white border border-emerald-400 flex items-center justify-center overflow-hidden">
+          <img 
+            src="/leonux-logo.png" 
+            alt="Leonux" 
+            class="w-full h-full object-cover"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <div style="display:none;" class="text-emerald-400 text-xs">L</div>
+        </div>
+        <h1 class="text-sm font-semibold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Leonux AI</h1>
+      </div>
+      <div class="w-8"></div>
+    </div>
+    
+    <div class="p-4">
+      <h2 class="text-xl mb-4">Mobile Header Test</h2>
+      <p class="mb-2">✅ This header should be visible on mobile devices (screen width < 1024px)</p>
+      <p class="mb-2">✅ It should be hidden on desktop (screen width >= 1024px)</p>
+      <p class="mb-2">✅ FontAwesome hamburger icon should be visible</p>
+      <p class="mb-2">✅ Logo should load, or show "L" fallback if image fails</p>
+      <p class="mb-2">✅ "Leonux AI" text should have emerald gradient</p>
+      
+      <div class="mt-8 p-4 bg-gray-800 rounded">
+        <h3 class="text-lg mb-2">Debug Info:</h3>
+        <p>Screen width: <span id="width"></span>px</p>
+        <p>Is mobile view: <span id="mobile"></span></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function updateDebugInfo() {
+      const width = window.innerWidth;
+      document.getElementById('width').textContent = width;
+      document.getElementById('mobile').textContent = width < 1024 ? 'Yes' : 'No';
+    }
+    
+    updateDebugInfo();
+    window.addEventListener('resize', updateDebugInfo);
+  </script>
+</body>
+</html>

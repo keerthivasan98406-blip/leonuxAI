@@ -11,7 +11,7 @@ import { isAuthenticated, saveAuth, getAuth } from './services/authService';
 // Use the existing global AIStudio type to avoid declaration conflicts
 declare global {
   interface Window {
-    aistudio: AIStudio;
+    aistudio?: any;
   }
 }
 
@@ -297,57 +297,20 @@ const App: React.FC = () => {
           }));
         }
       } else if (isVideoRequest) {
-        // Check for billing-enabled API key for Veo
-        const hasKey = await window.aistudio.hasSelectedApiKey();
-        if (!hasKey) {
-          setState(prev => ({ ...prev, isLoading: false }));
-          await window.aistudio.openSelectKey();
-          // After returning, try to continue
-        }
-
+        // Video generation temporarily disabled
         const leonuxPlaceholder: Message = {
           id: (Date.now() + 1).toString(),
           role: MessageRole.LEONUX,
-          content: "Accessing Motion Sub-routines... Initializing Veo Synthesis.",
+          content: "Video generation is temporarily unavailable due to API limitations. Please try text or image requests instead.",
           timestamp: new Date(),
-          isStreaming: true
+          isStreaming: false
         };
         
         setState(prev => ({
           ...prev,
           messages: [...prev.messages, leonuxPlaceholder],
-          isLoading: true
+          isLoading: false
         }));
-
-        try {
-          const videoUrl = await generateVideoWithLeonux(input, (status) => {
-            setState(prev => ({
-              ...prev,
-              messages: prev.messages.map(m => 
-                m.id === leonuxPlaceholder.id ? { ...m, content: status } : m
-              )
-            }));
-          });
-
-          if (videoUrl) {
-            setState(prev => ({
-              ...prev,
-              messages: prev.messages.map(m => 
-                m.id === leonuxPlaceholder.id 
-                  ? { ...m, content: "Synthesis complete. Motion asset generated:", parts: [{ video: videoUrl }], isStreaming: false }
-                  : m
-              ),
-              isLoading: false
-            }));
-          } else {
-            throw new Error("Generation failed");
-          }
-        } catch (err: any) {
-          if (err.message === "KEY_RESET") {
-            await window.aistudio.openSelectKey();
-          }
-          throw err;
-        }
 
       } else if (isImageRequest) {
         const leonuxPlaceholder: Message = {
@@ -440,40 +403,39 @@ const App: React.FC = () => {
           currentSessionId={currentSessionId}
         />
         
-        <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <main className="flex-1 flex flex-col min-w-0 relative">
+          {/* Mobile Header - Simple and reliable */}
+          <div className="lg:hidden bg-gray-900 border-b border-gray-700 px-4 py-3 flex items-center justify-between">
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="text-white text-xl p-2"
+              aria-label="Open menu"
+            >
+              ☰
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                L
+              </div>
+              <span className="text-emerald-400 font-semibold text-sm">Leonux AI</span>
+            </div>
+            <div className="w-10"></div>
+          </div>
+
           {/* Subtle background effects */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl"></div>
             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl"></div>
           </div>
 
-          {/* Mobile Header */}
-          <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-emerald-500/10 bg-[#1a1a1a]/80 backdrop-blur-xl relative z-10">
-            <button 
-              onClick={() => setIsSidebarOpen(true)}
-              className="p-2 text-gray-300 hover:text-emerald-400 transition-colors"
-            >
-              <i className="fa-solid fa-bars text-lg"></i>
-            </button>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-white border border-emerald-400 flex items-center justify-center overflow-hidden">
-                <img 
-                  src="/leonux-logo.png" 
-                  alt="Leonux" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h1 className="text-sm font-semibold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Leonux AI</h1>
-            </div>
-            <div className="w-8"></div>
+          <div className="flex-1 overflow-hidden">
+            <ChatContainer 
+              messages={state.messages} 
+              isLoading={state.isLoading}
+              onSend={handleSend}
+              chatEndRef={chatEndRef}
+            />
           </div>
-
-          <ChatContainer 
-            messages={state.messages} 
-            isLoading={state.isLoading}
-            onSend={handleSend}
-            chatEndRef={chatEndRef}
-          />
         </main>
       </div>
       
