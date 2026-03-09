@@ -15,7 +15,7 @@ echo ✓ Files added
 echo.
 
 echo Step 2: Committing changes...
-git commit -m "Add deployment scripts and fixes"
+git commit -m "Remove Render config and fix 404 reload issue"
 if %errorlevel% neq 0 (
     echo Note: No changes to commit or commit failed
 )
@@ -35,19 +35,12 @@ echo ========================================
 echo SUCCESS! Changes pushed to GitHub
 echo ========================================
 echo.
-echo Next steps:
+echo The Render deployment error is fixed!
 echo.
-echo 1. Enable GitHub Pages:
-echo    https://github.com/keerthivasan98406-blip/leonuxAI/settings/pages
-echo    Select "GitHub Actions" as source
+echo Your site is deploying to GitHub Pages:
+echo https://keerthivasan98406-blip.github.io/leonuxAI/
 echo.
-echo 2. Test if GitHub Pages is enabled:
-echo    https://keerthivasan98406-blip.github.io/leonuxAI/test-github-pages.html
-echo.
-echo 3. Check workflow status:
-echo    https://github.com/keerthivasan98406-blip/leonuxAI/actions
-echo.
-echo 4. Your main site:
-echo    https://keerthivasan98406-blip.github.io/leonuxAI/
+echo Check deployment status:
+echo https://github.com/keerthivasan98406-blip/leonuxAI/actions
 echo.
 pause
