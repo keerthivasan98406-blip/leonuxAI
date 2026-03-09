@@ -20,6 +20,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success'>('error');
   const audioRef = React.useRef<HTMLAudioElement>(null);
+  const baseUrl = import.meta.env.BASE_URL || '/';
 
   useEffect(() => {
     // Google OAuth is disabled for now - requires Google Cloud project setup
@@ -148,7 +149,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
       {/* Lion Roar Audio - Make sure the file exists in public folder */}
       <audio
         ref={audioRef}
-        src="/lion-roar.mp3"
+        src={`${baseUrl}lion-roar.mp3`}
         loop
         preload="auto"
       />
@@ -169,9 +170,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
                 className="w-full h-full object-cover scale-85"
               >
                 <source
-                  src="/login-video.mp4"
+                  src={`${baseUrl}login-video.mp4`}
                   type="video/mp4"
                 />
+                Your browser does not support the video tag.
               </video>
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
             </div>
@@ -305,9 +307,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
                 className="w-full h-full object-cover scale-85"
               >
                 <source
-                  src="/login-video.mp4"
+                  src={`${baseUrl}login-video.mp4`}
                   type="video/mp4"
                 />
+                Your browser does not support the video tag.
               </video>
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
             </div>

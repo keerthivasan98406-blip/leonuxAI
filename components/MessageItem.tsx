@@ -37,6 +37,7 @@ const formatMessageWithCallButtons = (content: string) => {
 export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) => {
   const isLeonux = message.role === MessageRole.LEONUX;
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const baseUrl = import.meta.env.BASE_URL || '/';
 
   const handleSpeak = () => {
     if (isSpeaking) {
@@ -144,7 +145,7 @@ export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) 
             <>
               <div className="absolute inset-0 rounded-full bg-emerald-400 blur-md opacity-40 animate-pulse"></div>
               <img 
-                src="/leonux-logo.png" 
+                src={`${baseUrl}leonux-logo.png`}
                 alt="Leonux" 
                 className="w-full h-full object-cover rounded-full relative z-10 scale-110"
               />
