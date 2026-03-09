@@ -38,14 +38,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
 
   // Play lion roar when modal opens
   useEffect(() => {
+    // Audio removed - file not available
+    /*
     if (isOpen && audioRef.current) {
-      // Try to play immediately
       const playPromise = audioRef.current.play();
       
       if (playPromise !== undefined) {
         playPromise.catch(error => {
           console.log('Audio autoplay blocked, will play on first interaction:', error);
-          // Add click listener to play on first interaction
           const playOnInteraction = () => {
             if (audioRef.current) {
               audioRef.current.play();
@@ -65,6 +65,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
         audioRef.current.pause();
       }
     };
+    */
   }, [isOpen]);
 
   const handleGoogleLogin = (response: any) => {
@@ -146,13 +147,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      {/* Lion Roar Audio - Make sure the file exists in public folder */}
+      {/* Lion Roar Audio - Disabled (file not available) */}
+      {/*
       <audio
         ref={audioRef}
         src={`${baseUrl}lion-roar.mp3`}
         loop
         preload="auto"
       />
+      */}
       
       {/* Glow effect */}
       <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-gradient-radial from-emerald-500/15 to-transparent rounded-full blur-3xl pointer-events-none"></div>
