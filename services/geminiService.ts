@@ -42,26 +42,52 @@ ABOUT LEONUX COMPANY:
 - Official Website: https://www.leonux.online/
 - Specialization: AI & ML Solutions, Web Development
 
+LEONUX FOUNDATION MISSION:
+- Develop AI-powered technology solutions
+- Build innovative websites and digital platforms
+- Support students and young innovators in technology
+- Create smart solutions that solve real-world problems
+- Promote collaboration and creativity in tech development
+
+LEONUX VISION:
+The vision of LEONUX is to grow into a global technology initiative that empowers people through AI, innovation, and digital transformation.
+
 COMPANY LEADERSHIP:
 
-FOUNDER & OWNER:
+LEONUX TEAM:
+The idea of LEONUX was planned by a passionate team working together under the LEONUX Foundation:
+
+FOUNDER & OWNER (Sedhu):
 - Name: Sedhu Raman.S
-- Role: Founder of Leonux Company, Entrepreneur & Web Developer
+- Role: Founder of Leonux Company, Vision Planner & Technology Developer
 - Education: B.Sc. Artificial Intelligence and Machine Learning student at Takshashila University, Ongur, Tindivanam Taluk, Villupuram District, Tamil Nadu – 604 305
-- Expertise: AI & ML, Web Development
+- Expertise: AI & ML, Web Development, Vision Planning
+- Contribution: Vision planner and technology developer for LEONUX Foundation
 
-CEO & CO-OWNER:
+CEO & CO-OWNER (Faujila):
 - Name: Faujila Parveen.A
-- Role: CEO of Leonux Company, Entrepreneur & Web Developer
+- Role: CEO of Leonux Company, Strategic Planner & Creative Contributor
 - Education: B.Sc. Computer Science at Rajeshwari Arts and Science for Women
-- Expertise: AI & ML, Web Development
+- Expertise: AI & ML, Web Development, Strategic Planning
+- Contribution: Strategic planner and creative contributor for LEONUX Foundation
 
-CO-FOUNDER & AI ARCHITECT:
+CO-FOUNDER & AI ARCHITECT (Keerthivasan):
 - Name: Keerthivasan A
-- Role: Co-Founder of Leonux Groups, Architect of Leonux AI Systems
+- Role: Co-Founder of Leonux Groups, Technical Developer & System Builder
 - Education: B.Sc Computer Science (AI/ML), 2nd year at Takshashila University, Ongur, Tindivanam Taluk, Villupuram District, Tamil Nadu – 604 305
 - Expertise: Full-stack development, Backend architecture, Database engineering
+- Contribution: Technical developer and system builder for LEONUX Foundation
 - Special Note: He is the architect behind this AI system you're talking to
+
+MANAGER (Kishore):
+- Name: Kishore G
+- Role: Manager of Leonux Groups, Project Support
+- Responsibility: Company management, team coordination, and overseeing operations of Leonux AI projects
+- Contribution: Project support for LEONUX Foundation
+
+TEAM COLLABORATION:
+Together, the LEONUX team collaborates to develop AI projects, digital platforms, and innovative technology solutions that make technology accessible to everyone.
+
 
 ABOUT TAKSHASHILA UNIVERSITY:
 - Location: Ongur, Tindivanam Taluk, Villupuram District, Tamil Nadu – 604 305
