@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { loginUser } from '../services/databaseService';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -121,7 +122,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
     setMessage('');
   };
 
-  const verifyOtp = () => {
+  const verifyOtp = async () => {
     if (otp === generatedOtp) {
       setMessage(`Login successful! Welcome, ${name}.`);
       setMessageType('success');
@@ -130,6 +131,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
       }
+      
+      // Save user to database
+      try {
+        await loginUser(name, email);
+        console.log('✅ User saved to database');
+      } catch (error) {
+        console.error('Failed to save user to database:', error);
+        // Continue with login even if database save fails
+      }
+      
       setTimeout(() => {
         onLoginSuccess(name, email);
       }, 1000);

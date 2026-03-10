@@ -24,7 +24,7 @@ echo.
 echo Your new API key will be active at:
 echo https://leonux-ai.onrender.com
 echo.
-echo New API Key: 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
+echo API Key: Set in Render dashboard environment variables
 echo.
 echo Note: It may take 2-3 minutes for Render to rebuild and deploy.
 echo.

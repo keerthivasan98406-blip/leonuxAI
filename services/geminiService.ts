@@ -1,15 +1,7 @@
 import { ModelType, ChatHistoryItem } from "../types";
 import { getUserProfile, updateUserProfile, formatUserProfileForAI } from "./userProfileService";
 
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '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';
-
-// Debug logging for API key (only show first/last 4 characters for security)
-const debugKey = OPENROUTER_API_KEY ? `${OPENROUTER_API_KEY.slice(0, 8)}...${OPENROUTER_API_KEY.slice(-8)}` : 'NOT_FOUND';
-console.log('API Key Status:', debugKey);
-
-if (!OPENROUTER_API_KEY) {
-  console.error('OpenRouter API key not found. Please set VITE_OPENROUTER_API_KEY in your environment variables.');
-}
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const chatWithLeonux = async (
   prompt: string,
@@ -196,23 +188,15 @@ Always format business information with numbered points and clear line breaks fo
       : { role: "user", content: prompt }
   ];
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const response = await fetch(`${API_URL}/chat`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-      'HTTP-Referer': 'https://www.leonux.online/',
-      'X-Title': 'Leonux AI'
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: imageBase64 ? 'openai/gpt-4o-mini' : 'deepseek/deepseek-chat', // Use vision model for images
+      model: imageBase64 ? 'openai/gpt-4o-mini' : 'deepseek/deepseek-chat',
       messages: messages,
-      stream: true,
-      temperature: 0.7,
-      max_tokens: 1024, // Reduced for faster responses
-      top_p: 0.9,
-      frequency_penalty: 0.1,
-      presence_penalty: 0.1
+      stream: true
     })
   });
 

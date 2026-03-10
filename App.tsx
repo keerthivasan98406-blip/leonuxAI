@@ -7,6 +7,7 @@ import { Message, MessageRole, AppState, ChatHistoryItem, ChatSession } from './
 import { chatWithLeonux, generateImageWithLeonux, generateVideoWithLeonux } from './services/geminiService';
 import { detectLocationQuery, getLocationInfo } from './services/mapService';
 import { isAuthenticated, saveAuth, getAuth } from './services/authService';
+import { createChatSession, saveMessage, getUserSessions, getSessionMessages } from './services/databaseService';
 
 // Use the existing global AIStudio type to avoid declaration conflicts
 declare global {
@@ -56,6 +57,7 @@ const App: React.FC = () => {
 
   const [chatSessions, setChatSessions] = useState<ChatSession[]>(loadChatSessions);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [dbSessionId, setDbSessionId] = useState<string | null>(null); // MongoDB session ID
   
   // Check authentication on mount
   useEffect(() => {
@@ -135,6 +137,7 @@ const App: React.FC = () => {
 
   const handleNewChat = () => {
     setCurrentSessionId(null);
+    setDbSessionId(null); // Reset database session ID
     setState({
       messages: [getWelcomeMessage()],
       history: [],
@@ -212,6 +215,31 @@ const App: React.FC = () => {
       isLoading: true
     }));
 
+    // Create database session if this is the first message
+    const auth = getAuth();
+    let sessionId = dbSessionId;
+    
+    if (!sessionId && auth && state.messages.length === 1) {
+      try {
+        const session = await createChatSession(auth.email, auth.email, input.slice(0, 50));
+        sessionId = session.id;
+        setDbSessionId(sessionId);
+        console.log('✅ Chat session created in database:', sessionId);
+      } catch (error) {
+        console.error('Failed to create database session:', error);
+      }
+    }
+
+    // Save user message to database
+    if (sessionId) {
+      try {
+        await saveMessage(sessionId, 'user', input, { hasImage: !!imageBase64, hasFile: !!fileContent });
+        console.log('✅ User message saved to database');
+      } catch (error) {
+        console.error('Failed to save user message:', error);
+      }
+    }
+
     const isVideoRequest = /\b(video|movie|clip|animation|motion|film)\b/i.test(input) && 
                            /\b(create|generate|make|render|draw|imagine)\b/i.test(input);
     
@@ -266,6 +294,20 @@ const App: React.FC = () => {
             }));
           });
 
+          // Save location response to database
+          if (sessionId) {
+            try {
+              await saveMessage(sessionId, 'assistant', finalResponseText, { 
+                type: 'location',
+                locationName: locationInfo.name,
+                mapUrl: locationInfo.mapUrl
+              });
+              console.log('✅ Location response saved to database');
+            } catch (error) {
+              console.error('Failed to save location response:', error);
+            }
+          }
+
           setState(prev => ({
             ...prev,
             messages: prev.messages.map(m => 
@@ -298,13 +340,24 @@ const App: React.FC = () => {
         }
       } else if (isVideoRequest) {
         // Video generation temporarily disabled
+        const videoMessage = "Video generation is temporarily unavailable due to API limitations. Please try text or image requests instead.";
         const leonuxPlaceholder: Message = {
           id: (Date.now() + 1).toString(),
           role: MessageRole.LEONUX,
-          content: "Video generation is temporarily unavailable due to API limitations. Please try text or image requests instead.",
+          content: videoMessage,
           timestamp: new Date(),
           isStreaming: false
         };
+        
+        // Save video unavailable message to database
+        if (sessionId) {
+          try {
+            await saveMessage(sessionId, 'assistant', videoMessage, { type: 'video_unavailable' });
+            console.log('✅ Video unavailable message saved to database');
+          } catch (error) {
+            console.error('Failed to save video message:', error);
+          }
+        }
         
         setState(prev => ({
           ...prev,
@@ -326,13 +379,31 @@ const App: React.FC = () => {
         const imageUrl = await generateImageWithLeonux(input);
         console.log('Generated image URL:', imageUrl);
         
+        const imageResponse = imageUrl 
+          ? "Image generated:"
+          : "Image generation failed. Please try again.";
+
+        // Save image generation response to database
+        if (sessionId) {
+          try {
+            await saveMessage(sessionId, 'assistant', imageResponse, { 
+              type: 'image',
+              imageUrl: imageUrl || null,
+              success: !!imageUrl
+            });
+            console.log('✅ Image response saved to database');
+          } catch (error) {
+            console.error('Failed to save image response:', error);
+          }
+        }
+        
         setState(prev => ({
           ...prev,
           messages: prev.messages.map(m => 
             m.id === leonuxPlaceholder.id 
               ? imageUrl 
-                ? { ...m, content: "Image generated:", parts: [{ image: imageUrl }], isStreaming: false }
-                : { ...m, content: "Image generation failed. Please try again.", isStreaming: false }
+                ? { ...m, content: imageResponse, parts: [{ image: imageUrl }], isStreaming: false }
+                : { ...m, content: imageResponse, isStreaming: false }
               : m
           ),
           isLoading: false
@@ -356,6 +427,16 @@ const App: React.FC = () => {
           { role: 'user', parts: [{ text: input }] },
           { role: 'model', parts: [{ text: finalResponseText }] }
         ];
+
+        // Save assistant response to database
+        if (sessionId) {
+          try {
+            await saveMessage(sessionId, 'assistant', finalResponseText);
+            console.log('✅ Assistant message saved to database');
+          } catch (error) {
+            console.error('Failed to save assistant message:', error);
+          }
+        }
 
         setState(prev => ({
           ...prev,

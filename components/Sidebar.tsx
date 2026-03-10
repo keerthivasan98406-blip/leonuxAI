@@ -88,7 +88,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside className={`fixed lg:relative inset-y-0 left-0 w-64 flex-shrink-0 bg-[#171717] z-50 flex flex-col transition-transform duration-300 lg:translate-x-0 ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="flex-1 overflow-y-auto p-2">
+        <div className="flex-1 overflow-y-auto p-2 pt-20 lg:pt-2">
           {/* New Chat Button */}
           <button 
             onClick={() => {

@@ -26,7 +26,7 @@
     </div>
 
     <script>
-        const API_KEY = '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';
+        const API_KEY = prompt('Enter your OpenRouter API key:') || '';
         
         async function testApiKey() {
             const resultDiv = document.getElementById('result');
