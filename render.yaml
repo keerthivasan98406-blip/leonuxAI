@@ -1,6 +1,23 @@
 services:
+  # Backend API Server
   - type: web
-    name: leonux-ai
+    name: leonux-ai-backend
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: MONGODB_URI
+        value: mongodb+srv://keerthivasan:keerthivasan123456789@cluster0.cjc3t9h.mongodb.net/leonux-ai?retryWrites=true&w=majority
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: PORT
+        value: 5000
+
+  # Frontend Static Site
+  - type: web
+    name: leonux-ai-frontend
     env: static
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
@@ -11,5 +28,5 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20
-      - key: VITE_OPENROUTER_API_KEY
-        sync: false
+      - key: VITE_API_URL
+        value: https://leonux-ai-backend.onrender.com/api
