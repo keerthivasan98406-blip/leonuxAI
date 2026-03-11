@@ -143,6 +143,8 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
 
 app.post('/api/chat', (req, res) => {
   console.log('📨 Chat request received');
+  console.log('📋 Request body:', JSON.stringify(req.body).substring(0, 200));
+  
   const { messages, model } = req.body;
   const API_KEY = process.env.OPENROUTER_API_KEY;
   
@@ -151,7 +153,8 @@ app.post('/api/chat', (req, res) => {
     return res.status(500).json({ error: 'API key not configured' });
   }
 
-  console.log('✅ API key found, making request to OpenRouter...');
+  console.log('✅ API key found:', API_KEY.substring(0, 20) + '...');
+  console.log('🎯 Model:', model || 'deepseek/deepseek-chat');
 
   const data = JSON.stringify({
     model: model || 'deepseek/deepseek-chat',
@@ -180,13 +183,28 @@ app.post('/api/chat', (req, res) => {
 
   const proxyReq = https.request(options, (proxyRes) => {
     console.log('✅ OpenRouter responded with status:', proxyRes.statusCode);
+    console.log('📋 OpenRouter headers:', JSON.stringify(proxyRes.headers));
     
-    // Pipe the response directly without consuming it
+    if (proxyRes.statusCode !== 200) {
+      let errorData = '';
+      proxyRes.on('data', (chunk) => {
+        errorData += chunk.toString();
+      });
+      proxyRes.on('end', () => {
+        console.error('❌ OpenRouter error response:', errorData);
+        if (!res.headersSent) {
+          res.status(proxyRes.statusCode).json({ error: errorData });
+        }
+      });
+      return;
+    }
+    
+    // Pipe the response directly
     proxyRes.pipe(res);
     
     // Log when stream ends
     proxyRes.on('end', () => {
-      console.log('✅ Stream ended');
+      console.log('✅ Stream ended successfully');
     });
   });
 
