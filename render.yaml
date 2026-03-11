@@ -3,8 +3,8 @@ services:
   - type: web
     name: leonuxAI-2
     env: node
-    buildCommand: npm install --prefix server
-    startCommand: npm start --prefix server
+    buildCommand: cd server && npm install
+    startCommand: node start-server.js
     envVars:
       - key: NODE_VERSION
         value: 20
