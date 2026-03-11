@@ -33,7 +33,7 @@ jobs:
 
       - name: Build
         env:
-          VITE_OPENROUTER_API_KEY: ${{ secrets.VITE_OPENROUTER_API_KEY }}
+          VITE_API_URL: https://leonux-ai-backend.onrender.com/api
         run: npm run build
 
       - name: Add .nojekyll
