@@ -181,17 +181,13 @@ app.post('/api/chat', (req, res) => {
   const proxyReq = https.request(options, (proxyRes) => {
     console.log('✅ OpenRouter responded with status:', proxyRes.statusCode);
     
-    let responseData = '';
-    proxyRes.on('data', (chunk) => {
-      responseData += chunk.toString();
-      console.log('📦 Received chunk:', chunk.toString().substring(0, 100));
-    });
-    
-    proxyRes.on('end', () => {
-      console.log('✅ Stream ended. Total data length:', responseData.length);
-    });
-    
+    // Pipe the response directly without consuming it
     proxyRes.pipe(res);
+    
+    // Log when stream ends
+    proxyRes.on('end', () => {
+      console.log('✅ Stream ended');
+    });
   });
 
   proxyReq.on('error', (error) => {
