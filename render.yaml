@@ -19,7 +19,7 @@ services:
   - type: web
     name: leonux-ai-frontend
     env: static
-    buildCommand: npm ci && npm run build && ls -la dist
+    buildCommand: node verify-env.js && npm ci && npm run build && ls -la dist
     staticPublishPath: ./dist
     routes:
       - type: rewrite
