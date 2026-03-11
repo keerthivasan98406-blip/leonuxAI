@@ -49,7 +49,13 @@ const messageSchema = new mongoose.Schema({
 const Message = mongoose.model('Message', messageSchema);
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Leonux AI Backend is running' });
+  const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  res.json({ 
+    status: 'OK', 
+    message: 'Leonux AI Backend is running',
+    mongodb: mongoStatus,
+    hasApiKey: !!process.env.OPENROUTER_API_KEY
+  });
 });
 
 app.post('/api/auth/login', async (req, res) => {
