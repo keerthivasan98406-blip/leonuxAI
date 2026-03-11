@@ -9,6 +9,8 @@ export const chatWithLeonux = async (
   onChunk: (text: string) => void,
   imageBase64?: string
 ) => {
+  console.log('🚀 Starting chat request to:', API_URL);
+  
   // Learn from user message
   updateUserProfile(prompt);
   
@@ -200,7 +202,11 @@ Always format business information with numbered points and clear line breaks fo
     })
   });
 
+  console.log('📡 Response status:', response.status, response.statusText);
+
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ API error:', response.status, errorText);
     throw new Error(`OpenRouter API error: ${response.status}`);
   }
 
@@ -208,21 +214,32 @@ Always format business information with numbered points and clear line breaks fo
   const decoder = new TextDecoder();
   let fullText = "";
 
+  console.log('📖 Starting to read stream...');
+
   if (reader) {
     while (true) {
       const { done, value } = await reader.read();
-      if (done) break;
+      if (done) {
+        console.log('✅ Stream complete. Total text length:', fullText.length);
+        break;
+      }
 
       const chunk = decoder.decode(value);
       const lines = chunk.split('\n').filter(line => line.trim() !== '');
 
       for (const line of lines) {
         // Skip comment lines (lines starting with ':')
-        if (line.startsWith(':')) continue;
+        if (line.startsWith(':')) {
+          console.log('⏭️ Skipping comment:', line.substring(0, 50));
+          continue;
+        }
         
         if (line.startsWith('data: ')) {
           const data = line.slice(6);
-          if (data === '[DONE]') continue;
+          if (data === '[DONE]') {
+            console.log('🏁 Received [DONE] signal');
+            continue;
+          }
 
           try {
             const parsed = JSON.parse(data);
@@ -232,13 +249,14 @@ Always format business information with numbered points and clear line breaks fo
               onChunk(fullText);
             }
           } catch (e) {
-            console.error('Failed to parse SSE data:', e, 'Line:', line);
+            console.error('❌ Failed to parse SSE data:', e, 'Line:', line.substring(0, 100));
           }
         }
       }
     }
   }
 
+  console.log('✅ Chat complete. Final text:', fullText.substring(0, 100) + '...');
   return fullText;
 };
 

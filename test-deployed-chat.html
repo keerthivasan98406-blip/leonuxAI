@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Deployed Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .output {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 50px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .error {
+            color: #f44336;
+        }
+        .info {
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Leonux AI Deployment Test</h1>
+        
+        <div class="test-section">
+            <h3>1. Backend Health Check</h3>
+            <button onclick="testHealth()">Test Health</button>
+            <div id="health-output" class="output">Click button to test...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Chat Endpoint Test</h3>
+            <button onclick="testChat()">Test Chat</button>
+            <div id="chat-output" class="output">Click button to test...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Frontend Environment</h3>
+            <button onclick="checkEnv()">Check Environment</button>
+            <div id="env-output" class="output">Click button to check...</div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'https://leonuxai-2.onrender.com/api';
+
+        async function testHealth() {
+            const output = document.getElementById('health-output');
+            output.innerHTML = '<span class="info">Testing...</span>';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/health`);
+                const data = await response.json();
+                
+                output.innerHTML = `
+<span class="success">✅ Backend is running!</span>
+Status: ${data.status}
+Message: ${data.message}
+MongoDB: ${data.mongodb}
+Has API Key: ${data.hasApiKey}
+                `;
+            } catch (error) {
+                output.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function testChat() {
+            const output = document.getElementById('chat-output');
+            output.innerHTML = '<span class="info">Sending test message...</span>';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek/deepseek-chat',
+                        messages: [
+                            { role: 'user', content: 'Say hello in one word' }
+                        ],
+                        stream: true
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullText = '';
+                let rawData = '';
+
+                output.innerHTML = '<span class="info">Receiving stream...</span>\n\n';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    rawData += chunk;
+                    const lines = chunk.split('\n').filter(line => line.trim() !== '');
+
+                    for (const line of lines) {
+                        // Skip comment lines
+                        if (line.startsWith(':')) {
+                            output.innerHTML += `<span class="info">Comment: ${line}</span>\n`;
+                            continue;
+                        }
+                        
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6);
+                            if (data === '[DONE]') {
+                                output.innerHTML += '<span class="success">Stream complete!</span>\n';
+                                continue;
+                            }
+
+                            try {
+                                const parsed = JSON.parse(data);
+                                const content = parsed.choices[0]?.delta?.content;
+                                if (content) {
+                                    fullText += content;
+                                    output.innerHTML += content;
+                                }
+                            } catch (e) {
+                                output.innerHTML += `<span class="error">Parse error: ${e.message}</span>\n`;
+                            }
+                        }
+                    }
+                }
+
+                output.innerHTML += `\n\n<span class="success">✅ Full response: ${fullText}</span>`;
+                output.innerHTML += `\n\n<span class="info">Raw data length: ${rawData.length} bytes</span>`;
+            } catch (error) {
+                output.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        function checkEnv() {
+            const output = document.getElementById('env-output');
+            output.innerHTML = `
+<span class="info">Current Page URL:</span> ${window.location.href}
+<span class="info">Backend URL:</span> ${BACKEND_URL}
+<span class="info">User Agent:</span> ${navigator.userAgent}
+<span class="info">Online:</span> ${navigator.onLine}
+            `;
+        }
+    </script>
+</body>
+</html>
