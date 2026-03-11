@@ -11,7 +11,7 @@ services:
       - key: MONGODB_URI
         value: mongodb+srv://keerthivasan:keerthivasan123456789@cluster0.cjc3t9h.mongodb.net/leonux-ai?retryWrites=true&w=majority
       - key: OPENROUTER_API_KEY
-        value: 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
+        value: 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
       - key: PORT
         value: 10000
 
