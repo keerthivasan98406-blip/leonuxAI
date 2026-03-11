@@ -217,6 +217,9 @@ Always format business information with numbered points and clear line breaks fo
       const lines = chunk.split('\n').filter(line => line.trim() !== '');
 
       for (const line of lines) {
+        // Skip comment lines (lines starting with ':')
+        if (line.startsWith(':')) continue;
+        
         if (line.startsWith('data: ')) {
           const data = line.slice(6);
           if (data === '[DONE]') continue;
@@ -229,7 +232,7 @@ Always format business information with numbered points and clear line breaks fo
               onChunk(fullText);
             }
           } catch (e) {
-            // Skip invalid JSON
+            console.error('Failed to parse SSE data:', e, 'Line:', line);
           }
         }
       }
