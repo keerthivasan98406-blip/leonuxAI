@@ -1,7 +1,7 @@
 services:
   # Backend API Server
   - type: web
-    name: leonux-ai-backend
+    name: leonuxAI-2
     env: node
     buildCommand: npm install --prefix server
     startCommand: npm start --prefix server
@@ -17,7 +17,7 @@ services:
 
   # Frontend Static Site
   - type: web
-    name: leonux-ai-frontend
+    name: leonuxAI-3
     env: static
     buildCommand: node verify-env.js && npm ci && npm run build && ls -la dist
     staticPublishPath: ./dist
