@@ -9,8 +9,9 @@ This contains everything you need to run your app locally.
 View your app in AI Studio: https://ai.studio/apps/temp/1
 
 ## Deployment Status
-- Frontend: GitHub Pages (leonuxai.online)
+- Frontend: GitHub Pages (leonuxai.online) 
 - Backend: Render (leonux-ai-backend.onrender.com)
+- Status: Active
 
 ## Run Locally
 
