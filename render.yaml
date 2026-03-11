@@ -19,7 +19,7 @@ services:
   - type: web
     name: leonux-ai-frontend
     env: static
-    buildCommand: npm install && npm run build
+    buildCommand: npm ci && npm run build && ls -la dist
     staticPublishPath: ./dist
     routes:
       - type: rewrite
@@ -29,4 +29,4 @@ services:
       - key: NODE_VERSION
         value: 20
       - key: VITE_API_URL
-        value: https://leonux-ai-backend.onrender.com/api
+        value: https://leonuxai-71ii.onrender.com/api
