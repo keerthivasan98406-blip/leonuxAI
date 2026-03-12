@@ -80,10 +80,10 @@ export const processFile = async (file: File): Promise<ProcessedFile> => {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
           
-          // Calculate new dimensions (max 1024px on longest side)
+          // Calculate new dimensions (max 2048px on longest side for better quality)
           let width = img.width;
           let height = img.height;
-          const maxSize = 1024;
+          const maxSize = 2048; // Increased from 1024 for better quality
           
           if (width > height && width > maxSize) {
             height = (height * maxSize) / width;
@@ -99,15 +99,25 @@ export const processFile = async (file: File): Promise<ProcessedFile> => {
           // Draw and compress
           ctx?.drawImage(img, 0, 0, width, height);
           
-          // Convert to base64 with compression (0.8 quality)
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          // Convert to base64 with adaptive compression
+          // Start with higher quality, reduce if needed
+          let quality = 0.85;
+          let compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+          
+          // If still too large (>10MB base64), reduce quality
+          const maxBase64Size = 10 * 1024 * 1024; // 10MB in base64
+          while (compressedBase64.length > maxBase64Size && quality > 0.5) {
+            quality -= 0.1;
+            compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+          }
           
           // Log compression results
           const originalSize = (e.target?.result as string).length;
           const compressedSize = compressedBase64.length;
           const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(1);
-          console.log(`📸 Image compressed: ${originalSize} → ${compressedSize} bytes (${reduction}% reduction)`);
+          console.log(`📸 Image compressed: ${(originalSize/1024/1024).toFixed(2)}MB → ${(compressedSize/1024/1024).toFixed(2)}MB (${reduction}% reduction)`);
           console.log(`📐 Dimensions: ${img.width}x${img.height} → ${width}x${height}`);
+          console.log(`🎨 Quality: ${(quality * 100).toFixed(0)}%`);
           
           resolve({
             type: 'image',

@@ -37,6 +37,15 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Check file size (max 20MB)
+    const maxSize = 20 * 1024 * 1024; // 20MB
+    if (file.size > maxSize) {
+      alert(`File is too large. Maximum size is 20MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB.`);
+      return;
+    }
+
+    console.log(`📁 File selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+
     setIsProcessing(true);
     
     try {
