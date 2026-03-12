@@ -456,6 +456,8 @@ const App: React.FC = () => {
           errorMessage = "Image is too large. Please upload a smaller image (under 5MB).";
         } else if (error.message.includes("429")) {
           errorMessage = "Rate limit exceeded. Please wait a few seconds and try again.";
+        } else if (error.message.includes("402")) {
+          errorMessage = "⚠️ OpenRouter credits exhausted. Please add credits at https://openrouter.ai/settings/credits to continue using the AI.";
         } else if (error.message.includes("quota")) {
           errorMessage = "API quota exceeded. Please wait a moment or check your API key limits.";
         } else if (error.message.includes("Image analysis failed")) {

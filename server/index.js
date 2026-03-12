@@ -181,7 +181,7 @@ app.post('/api/chat', (req, res) => {
     messages: messages,
     stream: true,
     temperature: 0.7,
-    max_tokens: 2048,  // Increased from 1024
+    max_tokens: 350,  // Reduced to fit within remaining credits
     top_p: 0.9,
     frequency_penalty: 0,
     presence_penalty: 0
