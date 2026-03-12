@@ -16,8 +16,10 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<ProcessedFile | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,10 +35,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processDroppedFile = async (file: File) => {
     // Check file size (max 20MB)
     const maxSize = 20 * 1024 * 1024; // 20MB
     if (file.size > maxSize) {
@@ -44,7 +43,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
       return;
     }
 
-    console.log(`📁 File selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+    console.log(`📁 File dropped: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
 
     setIsProcessing(true);
     
@@ -59,6 +58,56 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
       alert(error.message || 'Failed to process file');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await processDroppedFile(file);
+  };
+
+  // Drag and drop handlers
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.currentTarget === dropZoneRef.current) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      const file = files[0];
+      // Check if it's a supported file type
+      const supportedTypes = [
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+        'application/pdf',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+      ];
+      
+      if (supportedTypes.includes(file.type) || file.name.match(/\.(jpg|jpeg|png|gif|webp|pdf|ppt|pptx)$/i)) {
+        await processDroppedFile(file);
+      } else {
+        alert('Unsupported file type. Please upload images, PDFs, or PowerPoint files.');
+      }
     }
   };
 
@@ -91,7 +140,24 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
   );
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+    <div 
+      ref={dropZoneRef}
+      className="flex-1 flex flex-col h-full overflow-hidden relative"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      {/* Drag and Drop Overlay */}
+      {isDragging && (
+        <div className="absolute inset-0 z-50 bg-emerald-500/20 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-[#1a1a1a]/95 border-2 border-emerald-500 border-dashed rounded-3xl p-12 text-center">
+            <i className="fa-solid fa-cloud-arrow-up text-6xl text-emerald-400 mb-4"></i>
+            <p className="text-2xl text-white font-medium mb-2">Drop your file here</p>
+            <p className="text-gray-400">Images, PDFs, and PowerPoint files supported</p>
+          </div>
+        </div>
+      )}
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
