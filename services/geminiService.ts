@@ -218,14 +218,14 @@ Always format business information with numbered points and clear line breaks fo
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: imageBase64 ? 'mistralai/mistral-small-3.1-24b-instruct:free' : 'openrouter/hunter-alpha',
+      model: imageBase64 ? 'anthropic/claude-3.5-haiku:free' : 'openrouter/hunter-alpha',
       messages: messages,
       stream: true
     })
   });
 
   console.log('📡 Response status:', response.status, response.statusText);
-  console.log('🎯 Model used:', imageBase64 ? 'mistralai/mistral-small-3.1-24b-instruct:free (vision)' : 'openrouter/hunter-alpha (text)');
+  console.log('🎯 Model used:', imageBase64 ? 'anthropic/claude-3.5-haiku:free (vision)' : 'openrouter/hunter-alpha (text)');
   console.log('🖼️ Has image:', !!imageBase64);
   if (imageBase64) {
     console.log('📏 Image size:', imageBase64.length, 'bytes');
