@@ -196,8 +196,30 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
       <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-gradient-radial from-emerald-500/15 to-transparent rounded-full blur-3xl pointer-events-none"></div>
       
       <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center z-10 relative">
-        {/* Video Illustration - Show on mobile too */}
-        <div className="flex justify-center items-center md:hidden">
+        {/* Video Illustration - Left side on desktop */}
+        <div className="hidden md:flex justify-center items-center order-1">
+          <div className="relative w-full aspect-square max-w-[350px] lg:max-w-[400px]">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-full overflow-hidden border-4 md:border-8 border-[#0a0c0a] shadow-[0_0_50px_rgba(16,185,129,0.3)]">
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover scale-85"
+              >
+                <source
+                  src={`${baseUrl}login-video.mp4`}
+                  type="video/mp4"
+                />
+                Your browser does not support the video tag.
+              </video>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Video Illustration - Mobile (top) */}
+        <div className="flex justify-center items-center md:hidden order-1">
           <div className="relative w-48 h-48 sm:w-56 sm:h-56">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-full overflow-hidden border-4 border-[#0a0c0a] shadow-[0_0_30px_rgba(16,185,129,0.3)]">
               <video
@@ -218,8 +240,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
           </div>
         </div>
 
-        {/* Login Form */}
-        <div className="space-y-4 md:space-y-6 bg-[#1a1a1a]/95 backdrop-blur-xl p-5 md:p-6 rounded-3xl border border-emerald-500/20 max-w-sm mx-auto w-full">
+        {/* Login Form - Right side */}
+        <div className="space-y-4 md:space-y-6 bg-[#1a1a1a]/95 backdrop-blur-xl p-5 md:p-6 rounded-3xl border border-emerald-500/20 max-w-sm mx-auto w-full order-2">
           <div className="space-y-1">
             <h1 className="text-2xl md:text-3xl font-bold tracking-wider bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">WELCOME!</h1>
             <p className="text-xs text-gray-400">Continue using Leonux AI</p>
@@ -318,28 +340,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
               {message}
             </p>
           )}
-        </div>
-
-        {/* Video Illustration - Desktop */}
-        <div className="hidden md:flex justify-center items-center md:col-start-2 md:row-start-1">
-          <div className="relative w-full aspect-square max-w-[350px] lg:max-w-[400px]">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-full overflow-hidden border-4 md:border-8 border-[#0a0c0a] shadow-[0_0_50px_rgba(16,185,129,0.3)]">
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover scale-85"
-              >
-                <source
-                  src={`${baseUrl}login-video.mp4`}
-                  type="video/mp4"
-                />
-                Your browser does not support the video tag.
-              </video>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
