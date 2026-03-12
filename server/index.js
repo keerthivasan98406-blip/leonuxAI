@@ -143,9 +143,29 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
 
 app.post('/api/chat', (req, res) => {
   console.log('📨 Chat request received');
-  console.log('📋 Request body:', JSON.stringify(req.body).substring(0, 200));
   
   const { messages, model } = req.body;
+  
+  // Check if request contains images
+  const hasImages = messages.some(m => 
+    Array.isArray(m.content) && m.content.some(c => c.type === 'image_url')
+  );
+  
+  console.log('🎯 Model:', model || 'deepseek/deepseek-chat');
+  console.log('🖼️ Has images:', hasImages);
+  
+  if (hasImages) {
+    const imageContent = messages.find(m => 
+      Array.isArray(m.content) && m.content.some(c => c.type === 'image_url')
+    );
+    if (imageContent) {
+      const imageUrl = imageContent.content.find(c => c.type === 'image_url')?.image_url?.url;
+      if (imageUrl) {
+        console.log('📏 Image data size:', imageUrl.length, 'bytes');
+      }
+    }
+  }
+  
   const API_KEY = process.env.OPENROUTER_API_KEY;
   
   if (!API_KEY) {
@@ -154,7 +174,6 @@ app.post('/api/chat', (req, res) => {
   }
 
   console.log('✅ API key found:', API_KEY.substring(0, 20) + '...');
-  console.log('🎯 Model:', model || 'deepseek/deepseek-chat');
 
   const data = JSON.stringify({
     model: model || 'deepseek/deepseek-chat',

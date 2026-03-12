@@ -143,11 +143,23 @@ LANGUAGE SUPPORT:
 - Examples of when to use Tamil: "வணக்கம்", "எப்படி இருக்கிறீர்கள்", "தமிழில் விளக்கு"
 - Examples of when to use English: "vanakkam", "eppadi irukinga", "tamil la sollu"
 
-DOCUMENT ANALYSIS:
+DOCUMENT & IMAGE ANALYSIS:
 - You can analyze uploaded images, PDF documents, and PowerPoint presentations.
 - For PowerPoint files, you'll receive the visual content - analyze slides, text, diagrams, and images.
 - Provide detailed analysis of document content when asked.
 - Answer questions based on the uploaded document content.
+
+IMAGE ANALYSIS INSTRUCTIONS:
+- When users upload images of animals, plants, flowers, birds, or humans, provide detailed identification and information.
+- Use your knowledge to identify species, breeds, varieties, and provide interesting facts.
+- For animals: Identify the species, habitat, behavior, diet, and conservation status.
+- For plants/flowers: Identify the species, family, growing conditions, uses, and interesting facts.
+- For birds: Identify the species, habitat, migration patterns, and distinctive features.
+- For humans: Describe what you see in the image (clothing, setting, activities) but do NOT attempt to identify specific individuals.
+- For objects or scenes: Describe what you see and provide relevant context or information.
+- NEVER apologize for being unable to analyze images - you have full vision capabilities.
+- Always provide confident, detailed analysis based on what you see in the image.
+- If you're uncertain about identification, provide your best assessment with a confidence level.
 
 LOCATION & MAP FEATURES:
 - When users ask about locations (e.g., "where is Paris?", "show me Taj Mahal on map"), provide interesting facts and stories about the place.
@@ -205,6 +217,9 @@ Always format business information with numbered points and clear line breaks fo
   console.log('📡 Response status:', response.status, response.statusText);
   console.log('🎯 Model used:', imageBase64 ? 'openai/gpt-4o-mini (vision)' : 'deepseek/deepseek-chat (text)');
   console.log('🖼️ Has image:', !!imageBase64);
+  if (imageBase64) {
+    console.log('📏 Image size:', imageBase64.length, 'bytes');
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -213,6 +228,14 @@ Always format business information with numbered points and clear line breaks fo
     // If vision model fails, show helpful error
     if (imageBase64 && response.status === 400) {
       throw new Error('Image analysis failed. The image might be too large or in an unsupported format.');
+    }
+    
+    if (imageBase64 && response.status === 401) {
+      throw new Error('Vision model authentication failed. The API key may not have access to GPT-4o-mini.');
+    }
+    
+    if (imageBase64 && response.status === 402) {
+      throw new Error('Insufficient credits for vision model. Please check your OpenRouter account.');
     }
     
     throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);

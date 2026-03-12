@@ -102,6 +102,13 @@ export const processFile = async (file: File): Promise<ProcessedFile> => {
           // Convert to base64 with compression (0.8 quality)
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
           
+          // Log compression results
+          const originalSize = (e.target?.result as string).length;
+          const compressedSize = compressedBase64.length;
+          const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+          console.log(`📸 Image compressed: ${originalSize} → ${compressedSize} bytes (${reduction}% reduction)`);
+          console.log(`📐 Dimensions: ${img.width}x${img.height} → ${width}x${height}`);
+          
           resolve({
             type: 'image',
             content: compressedBase64,
