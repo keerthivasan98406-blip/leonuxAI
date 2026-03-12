@@ -26,22 +26,32 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
   useEffect(() => {
     // Load Google OAuth
     if (isOpen && window.google) {
-      window.google.accounts.id.initialize({
-        client_id: '668572083647-brs9bobppbein5a0i12aahdji1a5dorc.apps.googleusercontent.com',
-        callback: handleGoogleLogin,
-        auto_select: false,
-      });
-      
-      // Render the button
-      window.google.accounts.id.renderButton(
-        document.getElementById('google-signin-button'),
-        { 
-          theme: 'outline', 
-          size: 'large',
-          width: 250,
-          text: 'signin_with'
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        const buttonContainer = document.getElementById('google-signin-button');
+        if (buttonContainer) {
+          // Clear any existing content
+          buttonContainer.innerHTML = '';
+          
+          window.google.accounts.id.initialize({
+            client_id: '668572083647-brs9bobppbein5a0i12aahdji1a5dorc.apps.googleusercontent.com',
+            callback: handleGoogleLogin,
+            auto_select: false,
+          });
+          
+          // Render the button
+          window.google.accounts.id.renderButton(
+            buttonContainer,
+            { 
+              theme: 'outline', 
+              size: 'large',
+              width: 250,
+              text: 'signin_with',
+              shape: 'rectangular'
+            }
+          );
         }
-      );
+      }, 100);
     }
   }, [isOpen]);
 
@@ -183,6 +193,21 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
   return (
     <>
       <style>{`
+        /* Ensure Google Sign-In button stays in its container */
+        #google-signin-button {
+          position: relative !important;
+          display: flex !important;
+          justify-content: center !important;
+          align-items: center !important;
+          width: 100% !important;
+          min-height: 44px !important;
+        }
+        
+        #google-signin-button > div {
+          position: relative !important;
+          display: inline-block !important;
+        }
+        
         /* Position Google OAuth popup on the right side */
         iframe[src*="accounts.google.com"] {
           position: fixed !important;
@@ -333,8 +358,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
               </div>
 
               {/* Google Sign In - OAuth Button */}
-              <div className="flex flex-col items-center gap-1.5">
-                <div id="google-signin-button" className="flex justify-center"></div>
+              <div className="flex flex-col items-center gap-1.5 pt-2">
+                <div id="google-signin-button" className="flex justify-center w-full"></div>
               </div>
             </div>
           )}
