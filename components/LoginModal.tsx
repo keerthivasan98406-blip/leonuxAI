@@ -75,7 +75,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
       const payload = JSON.parse(atob(response.credential.split('.')[1]));
       setName(payload.name);
       setEmail(payload.email);
-      setMessage('Google account loaded! Click "Get OTP" to continue.');
+      setMessage('Google account loaded! Click "Get Authentication" to continue.');
       setMessageType('success');
       if (audioRef.current) {
         audioRef.current.pause();
@@ -96,7 +96,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
       if (googleName) {
         setName(googleName);
         setEmail(googleEmail);
-        setMessage('Google account loaded! Click "Get OTP" to continue.');
+        setMessage('Google account loaded! Click "Get Authentication" to continue.');
         setMessageType('success');
       }
     }
@@ -232,7 +232,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
                 onClick={sendOtp}
                 className="w-full py-2.5 md:py-3 bg-gradient-to-br from-emerald-400 to-teal-600 hover:from-emerald-500 hover:to-teal-700 text-white font-bold text-base md:text-lg rounded-full shadow-lg shadow-emerald-500/30 transition-all"
               >
-                Get OTP
+                Get Authentication
               </button>
 
               <div className="relative">
