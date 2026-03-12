@@ -180,8 +180,8 @@ app.post('/api/chat', (req, res) => {
     model: model || 'deepseek/deepseek-chat',
     messages: messages,
     stream: true,
-    temperature: 0.7,
-    max_tokens: 2048,  // Restored with new API key
+    temperature: 0.5,  // Reduced from 0.7 for faster, more focused responses
+    max_tokens: 1500,  // Reduced from 2048 for faster responses
     top_p: 0.9,
     frequency_penalty: 0,
     presence_penalty: 0
