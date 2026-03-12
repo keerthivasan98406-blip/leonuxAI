@@ -201,15 +201,23 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
           align-items: center !important;
           width: 100% !important;
           min-height: 44px !important;
+          z-index: 1 !important;
+          margin-top: 8px !important;
         }
         
         #google-signin-button > div {
           position: relative !important;
           display: inline-block !important;
+          z-index: 1 !important;
+        }
+        
+        #google-signin-button iframe {
+          position: relative !important;
+          z-index: 1 !important;
         }
         
         /* Position Google OAuth popup on the right side */
-        iframe[src*="accounts.google.com"] {
+        iframe[src*="accounts.google.com/gsi"] {
           position: fixed !important;
           right: 5% !important;
           left: auto !important;
@@ -348,7 +356,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
                 Get Authentication
               </button>
 
-              <div className="relative">
+              <div className="relative py-2">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-600"></div>
                 </div>
@@ -358,8 +366,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
               </div>
 
               {/* Google Sign In - OAuth Button */}
-              <div className="flex flex-col items-center gap-1.5 pt-2">
-                <div id="google-signin-button" className="flex justify-center w-full"></div>
+              <div className="flex flex-col items-center gap-1.5">
+                <div id="google-signin-button" className="flex justify-center w-full min-h-[44px]"></div>
               </div>
             </div>
           )}
