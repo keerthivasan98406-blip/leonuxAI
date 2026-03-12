@@ -203,11 +203,19 @@ Always format business information with numbered points and clear line breaks fo
   });
 
   console.log('📡 Response status:', response.status, response.statusText);
+  console.log('🎯 Model used:', imageBase64 ? 'openai/gpt-4o-mini (vision)' : 'deepseek/deepseek-chat (text)');
+  console.log('🖼️ Has image:', !!imageBase64);
 
   if (!response.ok) {
     const errorText = await response.text();
     console.error('❌ API error:', response.status, errorText);
-    throw new Error(`OpenRouter API error: ${response.status}`);
+    
+    // If vision model fails, show helpful error
+    if (imageBase64 && response.status === 400) {
+      throw new Error('Image analysis failed. The image might be too large or in an unsupported format.');
+    }
+    
+    throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
   }
 
   const reader = response.body?.getReader();

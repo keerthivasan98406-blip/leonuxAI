@@ -450,11 +450,19 @@ const App: React.FC = () => {
       
       let errorMessage = "System interruption in Neural Hub. Check connection or project billing for video generation.";
       
-      // Handle rate limit errors
-      if (error instanceof Error && error.message.includes("429")) {
-        errorMessage = "Rate limit exceeded. Please wait a few seconds and try again.";
-      } else if (error instanceof Error && error.message.includes("quota")) {
-        errorMessage = "API quota exceeded. Please wait a moment or check your API key limits.";
+      // Handle specific error types
+      if (error instanceof Error) {
+        if (error.message.includes("429")) {
+          errorMessage = "Rate limit exceeded. Please wait a few seconds and try again.";
+        } else if (error.message.includes("quota")) {
+          errorMessage = "API quota exceeded. Please wait a moment or check your API key limits.";
+        } else if (error.message.includes("Image analysis failed")) {
+          errorMessage = error.message;
+        } else if (error.message.includes("400")) {
+          errorMessage = "Bad request. The file might be too large or in an unsupported format.";
+        } else if (error.message.includes("401")) {
+          errorMessage = "Authentication error. Please check your API key.";
+        }
       }
       
       setState(prev => ({
