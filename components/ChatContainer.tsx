@@ -281,7 +281,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
           
           <p className="text-center text-xs text-gray-600 mt-3 flex items-center justify-center gap-2">
             <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
-            Powered by leonux AI • 
+            Leonux AI may misinterpret certain queries • Powered by leonux
           </p>
         </div>
       </div>
