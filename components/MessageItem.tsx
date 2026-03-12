@@ -180,7 +180,7 @@ export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) 
               isLeonux ? 'bg-gradient-to-b from-emerald-400 to-transparent rounded-l-2xl' : 'bg-gradient-to-b from-violet-300 to-transparent rounded-r-2xl'
             }`}></div>
             
-            <div className={`text-sm md:text-[15px] leading-6 md:leading-7 break-words select-text ${
+            <div className={`text-sm md:text-[15px] leading-6 md:leading-7 break-words select-text markdown-content ${
               isLeonux ? 'text-gray-100' : 'text-white'
             }`} style={{ userSelect: 'text', WebkitUserSelect: 'text' }}>
               {/* Check if message contains phone numbers */}
@@ -202,8 +202,11 @@ export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) 
                       inline ? (
                         <code className="bg-black/30 px-1.5 py-0.5 rounded text-emerald-300" {...props} />
                       ) : (
-                        <code className="block bg-black/30 p-2 rounded my-2 overflow-x-auto" {...props} />
+                        <code className="block bg-black/30 p-3 rounded-lg my-2 overflow-x-auto text-sm whitespace-pre-wrap break-words max-w-full" {...props} />
                       ),
+                    pre: ({node, ...props}: any) => (
+                      <pre className="bg-[#1a1a1a] border border-emerald-500/20 rounded-lg p-3 my-2 overflow-x-auto max-w-full" {...props} />
+                    ),
                     a: ({node, ...props}) => <a className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer" {...props} />,
                   }}
                 >
