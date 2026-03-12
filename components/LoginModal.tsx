@@ -24,13 +24,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
   const baseUrl = import.meta.env.BASE_URL || '/';
 
   useEffect(() => {
-    // Google OAuth temporarily disabled due to origin_mismatch error
-    // Need to add https://leonuxai-3.onrender.com to Google Cloud Console
-    // Go to: https://console.cloud.google.com/apis/credentials
-    // Edit OAuth Client ID: 668572083647-brs9bobppbein5a0i12aahdji1a5dorc
-    // Add to "Authorized JavaScript origins": https://leonuxai-3.onrender.com
-    
-    /*
+    // Load Google OAuth
     if (isOpen && window.google) {
       window.google.accounts.id.initialize({
         client_id: '668572083647-brs9bobppbein5a0i12aahdji1a5dorc.apps.googleusercontent.com',
@@ -49,7 +43,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
         }
       );
     }
-    */
   }, [isOpen]);
 
   // Play lion roar when modal opens
@@ -335,15 +328,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
                   <div className="w-full border-t border-gray-600"></div>
                 </div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="px-2 bg-[#1a1a1a] text-gray-400">Google Sign-In Coming Soon</span>
+                  <span className="px-2 bg-[#1a1a1a] text-gray-400">Or</span>
                 </div>
               </div>
 
-              {/* Google Sign In - Temporarily Disabled */}
-              <div className="text-center">
-                <p className="text-xs text-gray-500">
-                  Google Sign-In is being configured. Use email login above.
-                </p>
+              {/* Google Sign In - OAuth Button */}
+              <div className="flex flex-col items-center gap-1.5">
+                <div id="google-signin-button" className="flex justify-center"></div>
               </div>
             </div>
           )}
