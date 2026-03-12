@@ -452,14 +452,16 @@ const App: React.FC = () => {
       
       // Handle specific error types
       if (error instanceof Error) {
-        if (error.message.includes("429")) {
+        if (error.message.includes("413")) {
+          errorMessage = "Image is too large. Please upload a smaller image (under 5MB).";
+        } else if (error.message.includes("429")) {
           errorMessage = "Rate limit exceeded. Please wait a few seconds and try again.";
         } else if (error.message.includes("quota")) {
           errorMessage = "API quota exceeded. Please wait a moment or check your API key limits.";
         } else if (error.message.includes("Image analysis failed")) {
           errorMessage = error.message;
         } else if (error.message.includes("400")) {
-          errorMessage = "Bad request. The file might be too large or in an unsupported format.";
+          errorMessage = "Bad request. The file might be in an unsupported format.";
         } else if (error.message.includes("401")) {
           errorMessage = "Authentication error. Please check your API key.";
         }

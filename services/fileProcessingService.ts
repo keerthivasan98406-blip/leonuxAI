@@ -71,17 +71,49 @@ export const processFile = async (file: File): Promise<ProcessedFile> => {
       requiresVision: true 
     };
   } else if (fileType.startsWith('image/')) {
-    // For images, return base64
-    return new Promise((resolve) => {
+    // For images, compress and return base64
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
-        resolve({
-          type: 'image',
-          content: e.target?.result as string,
-          fileName,
-          requiresVision: true
-        });
+        const img = new Image();
+        img.onload = () => {
+          // Create canvas to resize image
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Calculate new dimensions (max 1024px on longest side)
+          let width = img.width;
+          let height = img.height;
+          const maxSize = 1024;
+          
+          if (width > height && width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          } else if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Draw and compress
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Convert to base64 with compression (0.8 quality)
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          
+          resolve({
+            type: 'image',
+            content: compressedBase64,
+            fileName,
+            requiresVision: true
+          });
+        };
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = e.target?.result as string;
       };
+      reader.onerror = () => reject(new Error('Failed to read image file'));
       reader.readAsDataURL(file);
     });
   } else {
