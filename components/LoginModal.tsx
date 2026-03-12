@@ -77,34 +77,51 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
     */
   }, [isOpen]);
 
-  const handleGoogleLogin = (response: any) => {
+  const handleGoogleLogin = async (response: any) => {
     try {
       const payload = JSON.parse(atob(response.credential.split('.')[1]));
-      setName(payload.name);
-      setEmail(payload.email);
-      setMessage('Google account loaded! Click "Get Authentication" to continue.');
-      setMessageType('success');
+      const googleName = payload.name;
+      const googleEmail = payload.email;
+      
+      // Stop the audio
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
       }
+      
+      // Save user to database
+      try {
+        await loginUser(googleName, googleEmail);
+        console.log('✅ User saved to database');
+      } catch (error) {
+        console.error('Failed to save user to database:', error);
+      }
+      
+      // Directly login without OTP
+      onLoginSuccess(googleName, googleEmail);
     } catch (error) {
       console.error('Google login error:', error);
-      setMessage('Failed to load Google account');
+      setMessage('Failed to sign in with Google');
       setMessageType('error');
     }
   };
 
-  const handleGoogleButtonClick = () => {
-    // Simplified Google login - just prompt for email
+  const handleGoogleButtonClick = async () => {
+    // Fallback for manual Google login
     const googleEmail = prompt('Enter your Google email:');
     if (googleEmail && googleEmail.includes('@')) {
       const googleName = prompt('Enter your name:');
       if (googleName) {
-        setName(googleName);
-        setEmail(googleEmail);
-        setMessage('Google account loaded! Click "Get Authentication" to continue.');
-        setMessageType('success');
+        // Save user to database
+        try {
+          await loginUser(googleName, googleEmail);
+          console.log('✅ User saved to database');
+        } catch (error) {
+          console.error('Failed to save user to database:', error);
+        }
+        
+        // Directly login without OTP
+        onLoginSuccess(googleName, googleEmail);
       }
     }
   };
