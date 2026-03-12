@@ -186,12 +186,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
           
-          <button 
-            onClick={() => setShowUpgradeModal(true)}
-            className="w-full px-3 py-2.5 text-sm text-white bg-white/10 hover:bg-white/20 rounded-lg transition-colors font-medium"
-          >
-            Upgrade
-          </button>
+          {/* Help and Upgrade Buttons */}
+          <div className="flex gap-2">
+            <a
+              href="mailto:leonuxq@gmail.com?subject=Help%20Request%20-%20Leonux%20AI&body=Hi%20Leonux%20Team,%0D%0A%0D%0AI%20need%20help%20with:%0D%0A%0D%0A"
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 text-sm text-white bg-blue-600/80 hover:bg-blue-600 rounded-lg transition-colors font-medium"
+              title="Contact support"
+            >
+              <i className="fa-solid fa-circle-question"></i>
+              <span>Help</span>
+            </a>
+            
+            <button 
+              onClick={() => setShowUpgradeModal(true)}
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 text-sm text-white bg-white/10 hover:bg-white/20 rounded-lg transition-colors font-medium"
+            >
+              <i className="fa-solid fa-rocket text-xs"></i>
+              <span>Upgrade</span>
+            </button>
+          </div>
         </div>
       </aside>
       
