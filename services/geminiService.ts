@@ -218,14 +218,14 @@ Always format business information with numbered points and clear line breaks fo
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: imageBase64 ? 'google/gemini-pro-1.5' : 'deepseek/deepseek-chat',
+      model: imageBase64 ? 'google/gemini-flash-1.5' : 'deepseek/deepseek-chat',
       messages: messages,
       stream: true
     })
   });
 
   console.log('📡 Response status:', response.status, response.statusText);
-  console.log('🎯 Model used:', imageBase64 ? 'google/gemini-pro-1.5 (vision)' : 'deepseek/deepseek-chat (text)');
+  console.log('🎯 Model used:', imageBase64 ? 'google/gemini-flash-1.5 (vision)' : 'deepseek/deepseek-chat (text)');
   console.log('🖼️ Has image:', !!imageBase64);
   if (imageBase64) {
     console.log('📏 Image size:', imageBase64.length, 'bytes');
