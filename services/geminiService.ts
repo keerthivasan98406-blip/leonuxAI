@@ -80,6 +80,13 @@ MANAGER (Kishore):
 - Responsibility: Company management, team coordination, and overseeing operations of Leonux AI projects
 - Contribution: Project support for LEONUX Foundation
 
+FIRST INFLUENCER & SPECIAL THANKS:
+- Name: Yoge Venkat
+- Role: First Influencer of Leonux
+- Instagram: @yoge_venkat
+- Contribution: Special thanks to Yoge Venkat for the wonderful cameo and being the first influencer to support Leonux AI
+- Recognition: Played an important role in promoting and supporting Leonux in its early stages
+
 TEAM COLLABORATION:
 Together, the LEONUX team collaborates to develop AI projects, digital platforms, and innovative technology solutions that make technology accessible to everyone.
 
