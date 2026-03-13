@@ -212,7 +212,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
   return (
     <>
       <style>{`
-        /* Ensure Google Sign-In button stays in its container */
+        /* Ensure Google Sign-In button stays in its container and centered */
         #google-signin-button {
           position: relative !important;
           display: flex !important;
@@ -226,13 +226,17 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
         
         #google-signin-button > div {
           position: relative !important;
-          display: inline-block !important;
+          display: flex !important;
+          justify-content: center !important;
+          align-items: center !important;
           z-index: 1 !important;
+          margin: 0 auto !important;
         }
         
         #google-signin-button iframe {
           position: relative !important;
           z-index: 1 !important;
+          margin: 0 auto !important;
         }
         
         /* Position Google OAuth popup on the right side */
