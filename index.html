@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leonux AI | Neural Hub</title>
   
+  <!-- Preconnect for faster Google OAuth loading -->
+  <link rel="preconnect" href="https://accounts.google.com">
+  <link rel="dns-prefetch" href="https://accounts.google.com">
+  
   <!-- Start Single Page Apps for GitHub Pages -->
   <script type="text/javascript">
     // Single Page Apps for GitHub Pages
@@ -23,9 +27,11 @@
   </script>
   <!-- End Single Page Apps for GitHub Pages -->
   
+  <!-- Load Google OAuth early without defer -->
+  <script src="https://accounts.google.com/gsi/client" async></script>
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     

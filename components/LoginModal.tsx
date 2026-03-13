@@ -24,34 +24,53 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
   const baseUrl = import.meta.env.BASE_URL || '/';
 
   useEffect(() => {
-    // Load Google OAuth
-    if (isOpen && window.google) {
-      // Small delay to ensure DOM is ready
-      setTimeout(() => {
-        const buttonContainer = document.getElementById('google-signin-button');
-        if (buttonContainer) {
-          // Clear any existing content
-          buttonContainer.innerHTML = '';
-          
-          window.google.accounts.id.initialize({
-            client_id: '668572083647-brs9bobppbein5a0i12aahdji1a5dorc.apps.googleusercontent.com',
-            callback: handleGoogleLogin,
-            auto_select: false,
-          });
-          
-          // Render the button
-          window.google.accounts.id.renderButton(
-            buttonContainer,
-            { 
-              theme: 'outline', 
-              size: 'large',
-              width: 250,
-              text: 'signin_with',
-              shape: 'rectangular'
+    // Load Google OAuth immediately when modal opens
+    if (isOpen) {
+      const initGoogle = () => {
+        if (window.google?.accounts?.id) {
+          const buttonContainer = document.getElementById('google-signin-button');
+          if (buttonContainer) {
+            buttonContainer.innerHTML = '';
+            
+            try {
+              window.google.accounts.id.initialize({
+                client_id: '668572083647-brs9bobppbein5a0i12aahdji1a5dorc.apps.googleusercontent.com',
+                callback: handleGoogleLogin,
+                auto_select: false,
+              });
+              
+              window.google.accounts.id.renderButton(
+                buttonContainer,
+                { 
+                  theme: 'outline', 
+                  size: 'large',
+                  width: 250,
+                  text: 'signin_with',
+                  shape: 'rectangular'
+                }
+              );
+            } catch (error) {
+              console.error('Google Sign-In error:', error);
             }
-          );
+          }
         }
-      }, 100);
+      };
+
+      // Try immediately
+      initGoogle();
+      
+      // Retry if Google API not ready yet
+      const retryInterval = setInterval(() => {
+        if (window.google?.accounts?.id) {
+          initGoogle();
+          clearInterval(retryInterval);
+        }
+      }, 50);
+      
+      // Clear interval after 2 seconds
+      setTimeout(() => clearInterval(retryInterval), 2000);
+      
+      return () => clearInterval(retryInterval);
     }
   }, [isOpen]);
 
