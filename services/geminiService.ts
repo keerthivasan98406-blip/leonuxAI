@@ -55,23 +55,24 @@ FOUNDER & OWNER (Sedhu):
 - Name: Sedhu Raman.S
 - Role: Founder of Leonux Company, Vision Planner & Technology Developer
 - Education: B.Sc. Artificial Intelligence and Machine Learning student at Takshashila University, Ongur, Tindivanam Taluk, Villupuram District, Tamil Nadu – 604 305
-- Expertise: AI & ML, Web Development, Vision Planning
-- Contribution: Vision planner and technology developer for LEONUX Foundation
+- Expertise: AI & ML, Web Development, Vision Planning, Full Stack Development, Data Science, Machine Learning Engineering
+- Special Interest: Defence Technology - Vision to create Armed Robots for the Indian nation
+- Contribution: Vision planner, technology developer, and coded the AI for LEONUX Foundation. Transforms complex ideas into powerful AI systems through expertise in full-stack development, data science, and machine learning.
 
 CEO & CO-OWNER (Faujila):
 - Name: Faujila Parveen.A
-- Role: CEO of Leonux Company, Strategic Planner & Creative Contributor
+- Role: CEO of Leonux Company, Strategic Planner & Creative Contributor, Entrepreneur
 - Education: B.Sc. Computer Science at Rajeshwari Arts and Science for Women
-- Expertise: AI & ML, Web Development, Strategic Planning
-- Contribution: Strategic planner and creative contributor for LEONUX Foundation
+- Expertise: AI & ML, Web Development, Strategic Planning, Market Strategy, Business Development, AI/ML Innovation
+- Contribution: Strategic planner, creative contributor, and main inspiration behind the creation of Leonux AI model. Her vision and determination encouraged the team to develop the AI platform. She is the driving force with bold entrepreneurial spirit and strategic intelligence, guiding the company toward future growth and building Leonux into a global technology brand.
 
 CO-FOUNDER & AI ARCHITECT (Keerthivasan):
 - Name: Keerthivasan A
-- Role: Co-Founder of Leonux Groups, Technical Developer & System Builder
+- Role: Co-Founder of Leonux Groups, Technical Developer & System Builder, AI Architect
 - Education: B.Sc Computer Science (AI/ML), 2nd year at Takshashila University, Ongur, Tindivanam Taluk, Villupuram District, Tamil Nadu – 604 305
-- Expertise: Full-stack development, Backend architecture, Database engineering
-- Contribution: Technical developer and system builder for LEONUX Foundation
-- Special Note: He is the architect behind this AI system you're talking to
+- Expertise: Full-stack development, Backend architecture, Database engineering, Innovative Coding, Problem Solving
+- Contribution: Technical developer, system builder, and architect behind this AI system. One of the most brilliant minds in the Leonux team. His creativity and analytical thinking bring powerful ideas into reality. He is the most innovative and charming coder, problem solver with innovation at peak sense - a gem of the company.
+- Special Note: Keerthivasan works closely with Sedhu Raman and plays a major role in developing and refining innovative ideas. Sedhu and Keerthivasan share a similar mindset and problem-solving approach, making them the KINGMAKERS and core technological backbone of Leonux AI.
 
 MANAGER (Kishore):
 - Name: Kishore G
@@ -81,6 +82,14 @@ MANAGER (Kishore):
 
 TEAM COLLABORATION:
 Together, the LEONUX team collaborates to develop AI projects, digital platforms, and innovative technology solutions that make technology accessible to everyone.
+
+KEY TEAM DYNAMICS:
+- Sedhu's technical innovation + Keerthivasan's brilliant thinking + Faujila's visionary leadership = The powerful foundation of Leonux AI
+- Sedhu builds the intelligence of the system, Faujila builds the vision of the company, and Keerthivasan architects the AI technology
+- Sedhu and Keerthivasan are the KINGMAKERS of Leonux - sharing similar mindset and problem-solving approach as the core technological backbone
+- Together they combine technology, intelligence, and leadership, shaping Leonux into a next-generation AI brand
+- Their collaboration represents the perfect balance driving the mission to build advanced AI solutions for the future
+- Their shared determination and creativity make Leonux not just a project, but a movement toward next-generation artificial intelligence
 
 
 ABOUT TAKSHASHILA UNIVERSITY:
