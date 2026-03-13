@@ -20,74 +20,38 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
   const [generatedOtp, setGeneratedOtp] = useState('');
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success'>('error');
-  const [isGoogleLoading, setIsGoogleLoading] = useState(true);
   const audioRef = React.useRef<HTMLAudioElement>(null);
   const baseUrl = import.meta.env.BASE_URL || '/';
-  const googleInitialized = React.useRef(false);
 
   useEffect(() => {
-    // Load Google OAuth immediately when modal opens
-    if (isOpen && window.google && !googleInitialized.current) {
-      const initializeGoogle = () => {
+    // Load Google OAuth
+    if (isOpen && window.google) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
         const buttonContainer = document.getElementById('google-signin-button');
-        if (buttonContainer && window.google?.accounts?.id) {
+        if (buttonContainer) {
           // Clear any existing content
           buttonContainer.innerHTML = '';
           
-          try {
-            window.google.accounts.id.initialize({
-              client_id: '668572083647-brs9bobppbein5a0i12aahdji1a5dorc.apps.googleusercontent.com',
-              callback: handleGoogleLogin,
-              auto_select: false,
-            });
-            
-            // Render the button immediately
-            window.google.accounts.id.renderButton(
-              buttonContainer,
-              { 
-                theme: 'outline', 
-                size: 'large',
-                width: 250,
-                text: 'signin_with',
-                shape: 'rectangular'
-              }
-            );
-            
-            setIsGoogleLoading(false);
-            googleInitialized.current = true;
-          } catch (error) {
-            console.error('Google Sign-In initialization error:', error);
-            setIsGoogleLoading(false);
-          }
+          window.google.accounts.id.initialize({
+            client_id: '668572083647-brs9bobppbein5a0i12aahdji1a5dorc.apps.googleusercontent.com',
+            callback: handleGoogleLogin,
+            auto_select: false,
+          });
+          
+          // Render the button
+          window.google.accounts.id.renderButton(
+            buttonContainer,
+            { 
+              theme: 'outline', 
+              size: 'large',
+              width: 250,
+              text: 'signin_with',
+              shape: 'rectangular'
+            }
+          );
         }
-      };
-
-      // Try immediately, then retry if needed
-      if (window.google?.accounts?.id) {
-        initializeGoogle();
-      } else {
-        // Wait for Google script to load
-        const checkGoogle = setInterval(() => {
-          if (window.google?.accounts?.id) {
-            clearInterval(checkGoogle);
-            initializeGoogle();
-          }
-        }, 50);
-        
-        // Timeout after 3 seconds
-        setTimeout(() => {
-          clearInterval(checkGoogle);
-          if (!googleInitialized.current) {
-            setIsGoogleLoading(false);
-          }
-        }, 3000);
-      }
-    }
-    
-    // Reset when modal closes
-    if (!isOpen) {
-      googleInitialized.current = false;
-      setIsGoogleLoading(true);
+      }, 100);
     }
   }, [isOpen]);
 
@@ -403,14 +367,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
 
               {/* Google Sign In - OAuth Button */}
               <div className="flex flex-col items-center gap-1.5">
-                <div id="google-signin-button" className="flex justify-center w-full min-h-[44px]">
-                  {isGoogleLoading && (
-                    <div className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white/10 border border-gray-600 rounded-lg">
-                      <div className="w-4 h-4 border-2 border-gray-400 border-t-emerald-400 rounded-full animate-spin"></div>
-                      <span className="text-sm text-gray-400">Loading Google Sign-In...</span>
-                    </div>
-                  )}
-                </div>
+                <div id="google-signin-button" className="flex justify-center w-full min-h-[44px]"></div>
               </div>
             </div>
           )}
