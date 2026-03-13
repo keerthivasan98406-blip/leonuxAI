@@ -46,7 +46,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
                   size: 'large',
                   width: 250,
                   text: 'signin_with',
-                  shape: 'rectangular'
+                  shape: 'pill'
                 }
               );
             } catch (error) {
