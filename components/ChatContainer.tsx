@@ -17,9 +17,11 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
   const [uploadedFile, setUploadedFile] = useState<ProcessedFile | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,6 +125,61 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
+    }
+  };
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = true;
+        recognitionRef.current.lang = 'en-US';
+
+        recognitionRef.current.onresult = (event: any) => {
+          const transcript = Array.from(event.results)
+            .map((result: any) => result[0])
+            .map((result: any) => result.transcript)
+            .join('');
+          
+          setInputValue(transcript);
+        };
+
+        recognitionRef.current.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+          if (event.error === 'not-allowed') {
+            alert('Microphone access denied. Please allow microphone access in your browser settings.');
+          }
+        };
+
+        recognitionRef.current.onend = () => {
+          setIsListening(false);
+        };
+      }
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  const toggleVoiceInput = () => {
+    if (!recognitionRef.current) {
+      alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
     }
   };
 
@@ -260,6 +317,20 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
                 className="flex-1 bg-transparent border-none outline-none resize-none text-sm md:text-[15px] text-white placeholder:text-gray-600 leading-6 max-h-[200px] min-w-0"
                 rows={1}
               />
+
+              <button 
+                type="button"
+                onClick={toggleVoiceInput}
+                disabled={isProcessing || isLoading}
+                className={`flex-shrink-0 p-2 transition-all rounded-lg disabled:opacity-50 ${
+                  isListening 
+                    ? 'text-red-400 bg-red-500/20 animate-pulse' 
+                    : 'text-gray-500 hover:text-emerald-400 hover:bg-emerald-500/10'
+                }`}
+                title={isListening ? "Stop recording" : "Voice input"}
+              >
+                <i className={`fa-solid ${isListening ? 'fa-stop' : 'fa-microphone'} text-base md:text-lg`}></i>
+              </button>
 
               <button
                 type="submit"
