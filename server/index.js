@@ -17,8 +17,8 @@ mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('✅ MongoDB Connected'))
-.catch(err => console.error('❌ MongoDB Error:', err));
+.then(() => {})
+.catch(err => {});
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -75,7 +75,6 @@ app.post('/api/auth/login', async (req, res) => {
     }
     res.json({ success: true, user });
   } catch (error) {
-    console.error('Login error:', error);
     res.status(500).json({ error: 'Failed to login user' });
   }
 });
@@ -90,7 +89,6 @@ app.post('/api/sessions', async (req, res) => {
     await session.save();
     res.json({ success: true, session });
   } catch (error) {
-    console.error('Create session error:', error);
     res.status(500).json({ error: 'Failed to create chat session' });
   }
 });
@@ -100,7 +98,6 @@ app.get('/api/sessions/user/:email', async (req, res) => {
     const sessions = await ChatSession.find({ userEmail: req.params.email }).sort({ updatedAt: -1 });
     res.json({ sessions });
   } catch (error) {
-    console.error('Get sessions error:', error);
     res.status(500).json({ error: 'Failed to get chat sessions' });
   }
 });
@@ -116,7 +113,6 @@ app.post('/api/messages', async (req, res) => {
     await ChatSession.findByIdAndUpdate(sessionId, { updatedAt: new Date() });
     res.json({ success: true, message });
   } catch (error) {
-    console.error('Save message error:', error);
     res.status(500).json({ error: 'Failed to save message' });
   }
 });
@@ -126,7 +122,6 @@ app.get('/api/messages/session/:sessionId', async (req, res) => {
     const messages = await Message.find({ sessionId: req.params.sessionId }).sort({ timestamp: 1 });
     res.json({ messages });
   } catch (error) {
-    console.error('Get messages error:', error);
     res.status(500).json({ error: 'Failed to get messages' });
   }
 });
@@ -137,14 +132,11 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
     await ChatSession.findByIdAndDelete(req.params.sessionId);
     res.json({ success: true, message: 'Session deleted successfully' });
   } catch (error) {
-    console.error('Delete session error:', error);
     res.status(500).json({ error: 'Failed to delete session' });
   }
 });
 
 app.post('/api/chat', (req, res) => {
-  console.log('📨 Chat request received');
-  
   const { messages, model } = req.body;
   
   // Check if request contains images
@@ -152,29 +144,11 @@ app.post('/api/chat', (req, res) => {
     Array.isArray(m.content) && m.content.some(c => c.type === 'image_url')
   );
   
-  console.log('🎯 Model:', model || 'deepseek/deepseek-chat');
-  console.log('🖼️ Has images:', hasImages);
-  
-  if (hasImages) {
-    const imageContent = messages.find(m => 
-      Array.isArray(m.content) && m.content.some(c => c.type === 'image_url')
-    );
-    if (imageContent) {
-      const imageUrl = imageContent.content.find(c => c.type === 'image_url')?.image_url?.url;
-      if (imageUrl) {
-        console.log('📏 Image data size:', imageUrl.length, 'bytes');
-      }
-    }
-  }
-  
   const API_KEY = process.env.OPENROUTER_API_KEY;
   
   if (!API_KEY) {
-    console.error('❌ API key not found');
     return res.status(500).json({ error: 'API key not configured' });
   }
-
-  console.log('✅ API key found:', API_KEY.substring(0, 20) + '...');
 
   const data = JSON.stringify({
     model: model || 'deepseek/deepseek-chat',
@@ -205,16 +179,12 @@ app.post('/api/chat', (req, res) => {
   res.setHeader('Connection', 'keep-alive');
 
   const proxyReq = https.request(options, (proxyRes) => {
-    console.log('✅ OpenRouter responded with status:', proxyRes.statusCode);
-    console.log('📋 OpenRouter headers:', JSON.stringify(proxyRes.headers));
-    
     if (proxyRes.statusCode !== 200) {
       let errorData = '';
       proxyRes.on('data', (chunk) => {
         errorData += chunk.toString();
       });
       proxyRes.on('end', () => {
-        console.error('❌ OpenRouter error response:', errorData);
         if (!res.headersSent) {
           res.status(proxyRes.statusCode).json({ error: errorData });
         }
@@ -224,15 +194,9 @@ app.post('/api/chat', (req, res) => {
     
     // Pipe the response directly
     proxyRes.pipe(res);
-    
-    // Log when stream ends
-    proxyRes.on('end', () => {
-      console.log('✅ Stream ended successfully');
-    });
   });
 
   proxyReq.on('error', (error) => {
-    console.error('❌ Proxy error:', error);
     if (!res.headersSent) {
       res.status(500).json({ error: 'Failed to connect to AI service' });
     }
@@ -242,7 +206,4 @@ app.post('/api/chat', (req, res) => {
   proxyReq.end();
 });
 
-app.listen(PORT, () => {
-  console.log('🚀 Leonux AI Backend running on port ' + PORT);
-  console.log('📊 API: http://localhost:' + PORT + '/api');
-});
+app.listen(PORT, () => {});
