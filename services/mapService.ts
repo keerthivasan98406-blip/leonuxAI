@@ -41,7 +41,6 @@ export const getLocationInfo = async (locationQuery: string): Promise<LocationIn
     
     return null;
   } catch (error) {
-    console.error('Map service error:', error);
     return null;
   }
 };

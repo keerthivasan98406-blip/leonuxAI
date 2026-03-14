@@ -44,7 +44,6 @@ export const loginUser = async (name: string, email: string): Promise<User> => {
     const data = await response.json();
     return data.user;
   } catch (error) {
-    console.error('Login error:', error);
     throw error;
   }
 };
@@ -65,7 +64,6 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
     const data = await response.json();
     return data.user;
   } catch (error) {
-    console.error('Get user error:', error);
     return null;
   }
 };
@@ -90,7 +88,6 @@ export const createChatSession = async (
     const data = await response.json();
     return data.session;
   } catch (error) {
-    console.error('Create session error:', error);
     throw error;
   }
 };
@@ -107,7 +104,6 @@ export const getUserSessions = async (email: string): Promise<ChatSession[]> => 
     const data = await response.json();
     return data.sessions;
   } catch (error) {
-    console.error('Get sessions error:', error);
     return [];
   }
 };
@@ -133,7 +129,6 @@ export const saveMessage = async (
     const data = await response.json();
     return data.message;
   } catch (error) {
-    console.error('Save message error:', error);
     throw error;
   }
 };
@@ -150,7 +145,6 @@ export const getSessionMessages = async (sessionId: string): Promise<ChatMessage
     const data = await response.json();
     return data.messages;
   } catch (error) {
-    console.error('Get messages error:', error);
     return [];
   }
 };
@@ -168,7 +162,6 @@ export const deleteSession = async (sessionId: string): Promise<boolean> => {
 
     return true;
   } catch (error) {
-    console.error('Delete session error:', error);
     return false;
   }
 };
@@ -179,7 +172,6 @@ export const checkBackendHealth = async (): Promise<boolean> => {
     const response = await fetch(`${API_URL}/health`);
     return response.ok;
   } catch (error) {
-    console.error('Backend health check failed:', error);
     return false;
   }
 };

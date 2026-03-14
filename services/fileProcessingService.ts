@@ -28,7 +28,6 @@ export const processPDF = async (file: File): Promise<string> => {
     
     return fullText;
   } catch (error) {
-    console.error('PDF processing error:', error);
     throw new Error('Failed to process PDF file');
   }
 };
@@ -114,10 +113,6 @@ export const processFile = async (file: File): Promise<ProcessedFile> => {
           // Log compression results
           const originalSize = (e.target?.result as string).length;
           const compressedSize = compressedBase64.length;
-          const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(1);
-          console.log(`📸 Image compressed: ${(originalSize/1024/1024).toFixed(2)}MB → ${(compressedSize/1024/1024).toFixed(2)}MB (${reduction}% reduction)`);
-          console.log(`📐 Dimensions: ${img.width}x${img.height} → ${width}x${height}`);
-          console.log(`🎨 Quality: ${(quality * 100).toFixed(0)}%`);
           
           resolve({
             type: 'image',

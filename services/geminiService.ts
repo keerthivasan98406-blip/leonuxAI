@@ -9,8 +9,6 @@ export const chatWithLeonux = async (
   onChunk: (text: string) => void,
   imageBase64?: string
 ) => {
-  console.log('🚀 Starting chat request to:', API_URL);
-  
   // Learn from user message
   updateUserProfile(prompt);
   
@@ -243,16 +241,8 @@ Always format business information with numbered points and clear line breaks fo
     })
   });
 
-  console.log('📡 Response status:', response.status, response.statusText);
-  console.log('🎯 Model used: openrouter/healer-alpha');
-  console.log('🖼️ Has image:', !!imageBase64);
-  if (imageBase64) {
-    console.log('📏 Image size:', imageBase64.length, 'bytes');
-  }
-
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('❌ API error:', response.status, errorText);
     
     // If vision model fails, show helpful error
     if (imageBase64 && response.status === 400) {
@@ -274,13 +264,10 @@ Always format business information with numbered points and clear line breaks fo
   const decoder = new TextDecoder();
   let fullText = "";
 
-  console.log('📖 Starting to read stream...');
-
   if (reader) {
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
-        console.log('✅ Stream complete. Total text length:', fullText.length);
         break;
       }
 
@@ -290,14 +277,12 @@ Always format business information with numbered points and clear line breaks fo
       for (const line of lines) {
         // Skip comment lines (lines starting with ':')
         if (line.startsWith(':')) {
-          console.log('⏭️ Skipping comment:', line.substring(0, 50));
           continue;
         }
         
         if (line.startsWith('data: ')) {
           const data = line.slice(6);
           if (data === '[DONE]') {
-            console.log('🏁 Received [DONE] signal');
             continue;
           }
 
@@ -309,14 +294,13 @@ Always format business information with numbered points and clear line breaks fo
               onChunk(fullText);
             }
           } catch (e) {
-            console.error('❌ Failed to parse SSE data:', e, 'Line:', line.substring(0, 100));
+            // Silent error handling
           }
         }
       }
     }
   }
 
-  console.log('✅ Chat complete. Final text:', fullText.substring(0, 100) + '...');
   return fullText;
 };
 
@@ -334,7 +318,6 @@ export const generateImageWithLeonux = async (prompt: string): Promise<string | 
     const timestamp = Date.now(); // Add timestamp to prevent caching
     return `https://source.unsplash.com/1024x1024/?${encodedPrompt}&sig=${timestamp}`;
   } catch (error) {
-    console.error('Image generation error:', error);
     return null;
   }
 };

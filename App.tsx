@@ -50,7 +50,7 @@ const App: React.FC = () => {
         return filtered;
       }
     } catch (error) {
-      console.error('Error loading chat sessions:', error);
+      // Silent error handling
     }
     return [];
   };
@@ -224,9 +224,8 @@ const App: React.FC = () => {
         const session = await createChatSession(auth.email, auth.email, input.slice(0, 50));
         sessionId = session.id;
         setDbSessionId(sessionId);
-        console.log('✅ Chat session created in database:', sessionId);
       } catch (error) {
-        console.error('Failed to create database session:', error);
+        // Silent error handling
       }
     }
 
@@ -234,9 +233,8 @@ const App: React.FC = () => {
     if (sessionId) {
       try {
         await saveMessage(sessionId, 'user', input, { hasImage: !!imageBase64, hasFile: !!fileContent });
-        console.log('✅ User message saved to database');
       } catch (error) {
-        console.error('Failed to save user message:', error);
+        // Silent error handling
       }
     }
 
@@ -252,11 +250,7 @@ const App: React.FC = () => {
       /^(draw|paint|sketch)\b/i.test(input.toLowerCase())
     );
 
-    console.log('Input:', input);
-    console.log('Is Image Request:', isImageRequest);
-    console.log('Has uploaded image:', !!imageBase64);
-    console.log('Has file content:', !!fileContent);
-    console.log('Location query:', locationQuery);
+
 
     try {
       if (locationQuery) {
@@ -302,9 +296,8 @@ const App: React.FC = () => {
                 locationName: locationInfo.name,
                 mapUrl: locationInfo.mapUrl
               });
-              console.log('✅ Location response saved to database');
             } catch (error) {
-              console.error('Failed to save location response:', error);
+              // Silent error handling
             }
           }
 
@@ -353,9 +346,8 @@ const App: React.FC = () => {
         if (sessionId) {
           try {
             await saveMessage(sessionId, 'assistant', videoMessage, { type: 'video_unavailable' });
-            console.log('✅ Video unavailable message saved to database');
           } catch (error) {
-            console.error('Failed to save video message:', error);
+            // Silent error handling
           }
         }
         
@@ -377,7 +369,6 @@ const App: React.FC = () => {
         setState(prev => ({ ...prev, messages: [...prev.messages, leonuxPlaceholder] }));
 
         const imageUrl = await generateImageWithLeonux(input);
-        console.log('Generated image URL:', imageUrl);
         
         const imageResponse = imageUrl 
           ? "Image generated:"
@@ -391,9 +382,8 @@ const App: React.FC = () => {
               imageUrl: imageUrl || null,
               success: !!imageUrl
             });
-            console.log('✅ Image response saved to database');
           } catch (error) {
-            console.error('Failed to save image response:', error);
+            // Silent error handling
           }
         }
         
@@ -432,9 +422,8 @@ const App: React.FC = () => {
         if (sessionId) {
           try {
             await saveMessage(sessionId, 'assistant', finalResponseText);
-            console.log('✅ Assistant message saved to database');
           } catch (error) {
-            console.error('Failed to save assistant message:', error);
+            // Silent error handling
           }
         }
 
@@ -446,7 +435,6 @@ const App: React.FC = () => {
         }));
       }
     } catch (error) {
-      console.error("Leonux System Error:", error);
       
       let errorMessage = "System interruption in Neural Hub. Check connection or project billing for video generation.";
       

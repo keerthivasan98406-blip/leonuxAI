@@ -45,8 +45,6 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
       return;
     }
 
-    console.log(`📁 File dropped: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
-
     setIsProcessing(true);
     
     try {
@@ -148,7 +146,6 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
         };
 
         recognitionRef.current.onerror = (event: any) => {
-          console.error('Speech recognition error:', event.error);
           setIsListening(false);
           if (event.error === 'not-allowed') {
             alert('Microphone access denied. Please allow microphone access in your browser settings.');
