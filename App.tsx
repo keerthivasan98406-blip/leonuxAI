@@ -189,9 +189,17 @@ const App: React.FC = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Only scroll to bottom when a new message is added, not during streaming updates
   useEffect(() => {
-    scrollToBottom();
-  }, [state.messages]);
+    const lastMessage = state.messages[state.messages.length - 1];
+    // Only auto-scroll if the last message is new (just added) or if loading just finished
+    if (lastMessage && (lastMessage.isStreaming === false || !state.isLoading)) {
+      const timer = setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [state.messages.length, state.isLoading]);
 
   const handleSend = async (input: string, imageBase64?: string, fileContent?: string) => {
     if (!input.trim() || state.isLoading) return;
