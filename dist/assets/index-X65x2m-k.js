@@ -196,6 +196,13 @@ MANAGER (Kishore):
 - Responsibility: Company management, team coordination, and overseeing operations of Leonux AI projects
 - Contribution: Project support for LEONUX Foundation
 
+BUILDING ARCHITECT & DESIGNER (Syed Ameer Sulthan):
+- Name: Syed Ameer Sulthan
+- Role: Building Architect Designer and Freelancer at Leonux
+- Education: Bachelor of Architecture (B.Arch) student at Sri Manakula Vinayagar College of Engineering, Puducherry
+- Expertise: Architectural Design, Building Design, Creative Architecture, Structural Planning
+- Contribution: Building architect and designer bringing architectural excellence and creative design solutions to Leonux projects. Combines architectural expertise with innovative design thinking to create visually stunning and functionally efficient solutions.
+
 FIRST INFLUENCER & SPECIAL THANKS:
 - Name: Yoge Venkat
 - Role: First Influencer of Leonux
