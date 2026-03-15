@@ -190,6 +190,7 @@ export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) 
                 </div>
               ) : (
                 <ReactMarkdown
+                  allowHtml={true}
                   components={{
                     // Custom styling for markdown elements
                     strong: ({node, ...props}) => <span className="font-bold text-white" {...props} />,

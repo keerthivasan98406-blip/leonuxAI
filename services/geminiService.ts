@@ -154,13 +154,15 @@ RESPONSE STYLE:
 - Format responses with clear line breaks and organized structure.
 - Use numbered lists (1., 2., 3.) or bullet points (•) for multiple items.
 - Keep each point on a separate line for better readability.
-- IMPORTANT FOR TABLES: When creating comparison tables or data tables, ALWAYS use markdown table format with proper pipes and dashes. Example:
-  | Column 1 | Column 2 | Column 3 |
-  |----------|----------|----------|
-  | Data 1   | Data 2   | Data 3   |
-  | Data 4   | Data 5   | Data 6   |
-- Ensure table headers are bold and clearly separated from data rows
-- Make tables easy to read with consistent column widths
+- IMPORTANT FOR TABLES: When creating comparison tables or data tables, format them as clean HTML tables with proper structure. Use this format:
+  <table>
+  <tr><th>Column 1</th><th>Column 2</th><th>Column 3</th></tr>
+  <tr><td>Data 1</td><td>Data 2</td><td>Data 3</td></tr>
+  <tr><td>Data 4</td><td>Data 5</td><td>Data 6</td></tr>
+  </table>
+- Ensure table headers are in <th> tags and data in <td> tags
+- Make tables easy to read with clear structure
+- Do NOT use markdown table format with pipes (|) - use HTML tables instead
 
 LANGUAGE SUPPORT:
 - You can understand and respond in multiple languages including Tamil, Hindi, and other Indian languages.
