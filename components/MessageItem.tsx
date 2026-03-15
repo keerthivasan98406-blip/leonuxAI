@@ -199,24 +199,24 @@ export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) 
                     ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2" {...props} />,
                     li: ({node, ...props}) => <li className="mb-1" {...props} />,
                     table: ({node, ...props}: any) => (
-                      <div className="overflow-x-auto my-3 rounded-lg border border-emerald-500/20">
+                      <div className="overflow-x-auto my-4 rounded-lg border border-emerald-500/30 bg-black/20">
                         <table className="w-full border-collapse text-sm" {...props} />
                       </div>
                     ),
                     thead: ({node, ...props}: any) => (
-                      <thead className="bg-emerald-500/10 border-b border-emerald-500/30" {...props} />
+                      <thead className="bg-emerald-500/20 border-b-2 border-emerald-500/40" {...props} />
                     ),
                     tbody: ({node, ...props}: any) => (
-                      <tbody className="divide-y divide-emerald-500/10" {...props} />
+                      <tbody className="divide-y divide-emerald-500/20" {...props} />
                     ),
                     tr: ({node, ...props}: any) => (
-                      <tr className="hover:bg-emerald-500/5 transition-colors" {...props} />
+                      <tr className="hover:bg-emerald-500/10 transition-colors" {...props} />
                     ),
                     th: ({node, ...props}: any) => (
-                      <th className="px-4 py-2 text-left font-semibold text-emerald-300 border-r border-emerald-500/20 last:border-r-0" {...props} />
+                      <th className="px-6 py-3 text-left font-bold text-emerald-300 border-r border-emerald-500/20 last:border-r-0 whitespace-nowrap" {...props} />
                     ),
                     td: ({node, ...props}: any) => (
-                      <td className="px-4 py-2 text-gray-200 border-r border-emerald-500/10 last:border-r-0" {...props} />
+                      <td className="px-6 py-3 text-gray-200 border-r border-emerald-500/10 last:border-r-0 whitespace-nowrap" {...props} />
                     ),
                     code: ({node, inline, ...props}: any) => 
                       inline ? (
