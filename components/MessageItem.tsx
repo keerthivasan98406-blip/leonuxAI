@@ -199,6 +199,17 @@ export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) 
                     ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2" {...props} />,
                     ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2" {...props} />,
                     li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                    html: ({value}: any) => {
+                      // Parse and render HTML tables
+                      if (value.includes('<table')) {
+                        return (
+                          <div className="overflow-x-auto my-4 rounded-lg border border-emerald-500/30 bg-black/20">
+                            <div dangerouslySetInnerHTML={{ __html: value }} className="[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_thead]:bg-emerald-500/20 [&_thead]:border-b-2 [&_thead]:border-emerald-500/40 [&_tbody]:divide-y [&_tbody]:divide-emerald-500/20 [&_tr]:hover:bg-emerald-500/10 [&_tr]:transition-colors [&_th]:px-6 [&_th]:py-3 [&_th]:text-left [&_th]:font-bold [&_th]:text-emerald-300 [&_th]:border-r [&_th]:border-emerald-500/20 [&_th:last-child]:border-r-0 [&_td]:px-6 [&_td]:py-3 [&_td]:text-gray-200 [&_td]:border-r [&_td]:border-emerald-500/10 [&_td:last-child]:border-r-0" />
+                          </div>
+                        );
+                      }
+                      return <div dangerouslySetInnerHTML={{ __html: value }} />;
+                    },
                     table: ({node, ...props}: any) => (
                       <div className="overflow-x-auto my-4 rounded-lg border border-emerald-500/30 bg-black/20">
                         <table className="w-full border-collapse text-sm" {...props} />
