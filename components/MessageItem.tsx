@@ -189,61 +189,68 @@ export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) 
                   {formatMessageWithCallButtons(message.content)}
                 </div>
               ) : (
-                <ReactMarkdown
-                  allowHtml={true}
-                  components={{
-                    // Custom styling for markdown elements
-                    strong: ({node, ...props}) => <span className="font-bold text-white" {...props} />,
-                    em: ({node, ...props}) => <span className="italic" {...props} />,
-                    p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
-                    ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2" {...props} />,
-                    ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2" {...props} />,
-                    li: ({node, ...props}) => <li className="mb-1" {...props} />,
-                    html: ({value}: any) => {
-                      // Parse and render HTML tables
-                      if (value.includes('<table')) {
-                        return (
+                <>
+                  {message.content.includes('<table') ? (
+                    <div className="overflow-x-auto my-4 rounded-lg border border-emerald-500/30 bg-black/20">
+                      <div dangerouslySetInnerHTML={{ __html: message.content }} className="[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_thead]:bg-emerald-500/20 [&_thead]:border-b-2 [&_thead]:border-emerald-500/40 [&_tbody]:divide-y [&_tbody]:divide-emerald-500/20 [&_tr]:hover:bg-emerald-500/10 [&_tr]:transition-colors [&_th]:px-4 [&_th]:py-2 [&_th]:text-left [&_th]:font-bold [&_th]:text-emerald-300 [&_th]:border-r [&_th]:border-emerald-500/20 [&_th:last-child]:border-r-0 [&_td]:px-4 [&_td]:py-2 [&_td]:text-gray-200 [&_td]:border-r [&_td]:border-emerald-500/10 [&_td:last-child]:border-r-0" />
+                    </div>
+                  ) : (
+                    <ReactMarkdown
+                      components={{
+                        // Custom styling for markdown elements
+                        strong: ({node, ...props}) => <span className="font-bold text-white" {...props} />,
+                        em: ({node, ...props}) => <span className="italic" {...props} />,
+                        p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                        ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2" {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2" {...props} />,
+                        li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                        html: ({value}: any) => {
+                          // Parse and render HTML tables
+                          if (value.includes('<table')) {
+                            return (
+                              <div className="overflow-x-auto my-4 rounded-lg border border-emerald-500/30 bg-black/20">
+                                <div dangerouslySetInnerHTML={{ __html: value }} className="[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_thead]:bg-emerald-500/20 [&_thead]:border-b-2 [&_thead]:border-emerald-500/40 [&_tbody]:divide-y [&_tbody]:divide-emerald-500/20 [&_tr]:hover:bg-emerald-500/10 [&_tr]:transition-colors [&_th]:px-4 [&_th]:py-2 [&_th]:text-left [&_th]:font-bold [&_th]:text-emerald-300 [&_th]:border-r [&_th]:border-emerald-500/20 [&_th:last-child]:border-r-0 [&_td]:px-4 [&_td]:py-2 [&_td]:text-gray-200 [&_td]:border-r [&_td]:border-emerald-500/10 [&_td:last-child]:border-r-0" />
+                              </div>
+                            );
+                          }
+                          return <div dangerouslySetInnerHTML={{ __html: value }} />;
+                        },
+                        table: ({node, ...props}: any) => (
                           <div className="overflow-x-auto my-4 rounded-lg border border-emerald-500/30 bg-black/20">
-                            <div dangerouslySetInnerHTML={{ __html: value }} className="[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_thead]:bg-emerald-500/20 [&_thead]:border-b-2 [&_thead]:border-emerald-500/40 [&_tbody]:divide-y [&_tbody]:divide-emerald-500/20 [&_tr]:hover:bg-emerald-500/10 [&_tr]:transition-colors [&_th]:px-6 [&_th]:py-3 [&_th]:text-left [&_th]:font-bold [&_th]:text-emerald-300 [&_th]:border-r [&_th]:border-emerald-500/20 [&_th:last-child]:border-r-0 [&_td]:px-6 [&_td]:py-3 [&_td]:text-gray-200 [&_td]:border-r [&_td]:border-emerald-500/10 [&_td:last-child]:border-r-0" />
+                            <table className="w-full border-collapse text-sm" {...props} />
                           </div>
-                        );
-                      }
-                      return <div dangerouslySetInnerHTML={{ __html: value }} />;
-                    },
-                    table: ({node, ...props}: any) => (
-                      <div className="overflow-x-auto my-4 rounded-lg border border-emerald-500/30 bg-black/20">
-                        <table className="w-full border-collapse text-sm" {...props} />
-                      </div>
-                    ),
-                    thead: ({node, ...props}: any) => (
-                      <thead className="bg-emerald-500/20 border-b-2 border-emerald-500/40" {...props} />
-                    ),
-                    tbody: ({node, ...props}: any) => (
-                      <tbody className="divide-y divide-emerald-500/20" {...props} />
-                    ),
-                    tr: ({node, ...props}: any) => (
-                      <tr className="hover:bg-emerald-500/10 transition-colors" {...props} />
-                    ),
-                    th: ({node, ...props}: any) => (
-                      <th className="px-6 py-3 text-left font-bold text-emerald-300 border-r border-emerald-500/20 last:border-r-0 whitespace-nowrap" {...props} />
-                    ),
-                    td: ({node, ...props}: any) => (
-                      <td className="px-6 py-3 text-gray-200 border-r border-emerald-500/10 last:border-r-0 whitespace-nowrap" {...props} />
-                    ),
-                    code: ({node, inline, ...props}: any) => 
-                      inline ? (
-                        <code className="bg-black/30 px-1.5 py-0.5 rounded text-emerald-300" {...props} />
-                      ) : (
-                        <code className="block bg-black/30 p-3 rounded-lg my-2 overflow-x-auto text-sm whitespace-pre-wrap break-words max-w-full" {...props} />
-                      ),
-                    pre: ({node, ...props}: any) => (
-                      <pre className="bg-[#1a1a1a] border border-emerald-500/20 rounded-lg p-3 my-2 overflow-x-auto max-w-full" {...props} />
-                    ),
-                    a: ({node, ...props}) => <a className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer" {...props} />,
-                  }}
-                >
-                  {message.content}
-                </ReactMarkdown>
+                        ),
+                        thead: ({node, ...props}: any) => (
+                          <thead className="bg-emerald-500/20 border-b-2 border-emerald-500/40" {...props} />
+                        ),
+                        tbody: ({node, ...props}: any) => (
+                          <tbody className="divide-y divide-emerald-500/20" {...props} />
+                        ),
+                        tr: ({node, ...props}: any) => (
+                          <tr className="hover:bg-emerald-500/10 transition-colors" {...props} />
+                        ),
+                        th: ({node, ...props}: any) => (
+                          <th className="px-4 py-2 text-left font-bold text-emerald-300 border-r border-emerald-500/20 last:border-r-0 whitespace-nowrap" {...props} />
+                        ),
+                        td: ({node, ...props}: any) => (
+                          <td className="px-4 py-2 text-gray-200 border-r border-emerald-500/10 last:border-r-0 whitespace-nowrap" {...props} />
+                        ),
+                        code: ({node, inline, ...props}: any) => 
+                          inline ? (
+                            <code className="bg-black/30 px-1.5 py-0.5 rounded text-emerald-300" {...props} />
+                          ) : (
+                            <code className="block bg-black/30 p-3 rounded-lg my-2 overflow-x-auto text-sm whitespace-pre-wrap break-words max-w-full" {...props} />
+                          ),
+                        pre: ({node, ...props}: any) => (
+                          <pre className="bg-[#1a1a1a] border border-emerald-500/20 rounded-lg p-3 my-2 overflow-x-auto max-w-full" {...props} />
+                        ),
+                        a: ({node, ...props}) => <a className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer" {...props} />,
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  )}
+                </>
               )}
               {message.isStreaming && (
                 <span className="inline-flex items-center ml-2 gap-0.5">
