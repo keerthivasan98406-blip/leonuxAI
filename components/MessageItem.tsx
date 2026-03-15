@@ -191,8 +191,8 @@ export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) 
               ) : (
                 <>
                   {message.content.includes('<table') ? (
-                    <div className="overflow-x-auto my-4 rounded-lg border border-emerald-500/30 bg-black/20">
-                      <div dangerouslySetInnerHTML={{ __html: message.content }} className="[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_thead]:bg-emerald-500/20 [&_thead]:border-b-2 [&_thead]:border-emerald-500/40 [&_tbody]:divide-y [&_tbody]:divide-emerald-500/20 [&_tr]:hover:bg-emerald-500/10 [&_tr]:transition-colors [&_th]:px-4 [&_th]:py-2 [&_th]:text-left [&_th]:font-bold [&_th]:text-emerald-300 [&_th]:border-r [&_th]:border-emerald-500/20 [&_th:last-child]:border-r-0 [&_td]:px-4 [&_td]:py-2 [&_td]:text-gray-200 [&_td]:border-r [&_td]:border-emerald-500/10 [&_td:last-child]:border-r-0" />
+                    <div className="overflow-x-auto my-4">
+                      <div dangerouslySetInnerHTML={{ __html: message.content }} className="[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_table]:bg-transparent [&_thead]:bg-transparent [&_tbody]:bg-transparent [&_tr]:border-b [&_tr]:border-gray-600 [&_th]:px-6 [&_th]:py-4 [&_th]:text-left [&_th]:font-semibold [&_th]:text-gray-300 [&_th]:bg-transparent [&_th]:border-b-2 [&_th]:border-gray-500 [&_td]:px-6 [&_td]:py-4 [&_td]:text-gray-300 [&_td]:bg-transparent" />
                     </div>
                   ) : (
                     <ReactMarkdown
@@ -208,32 +208,32 @@ export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) 
                           // Parse and render HTML tables
                           if (value.includes('<table')) {
                             return (
-                              <div className="overflow-x-auto my-4 rounded-lg border border-emerald-500/30 bg-black/20">
-                                <div dangerouslySetInnerHTML={{ __html: value }} className="[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_thead]:bg-emerald-500/20 [&_thead]:border-b-2 [&_thead]:border-emerald-500/40 [&_tbody]:divide-y [&_tbody]:divide-emerald-500/20 [&_tr]:hover:bg-emerald-500/10 [&_tr]:transition-colors [&_th]:px-4 [&_th]:py-2 [&_th]:text-left [&_th]:font-bold [&_th]:text-emerald-300 [&_th]:border-r [&_th]:border-emerald-500/20 [&_th:last-child]:border-r-0 [&_td]:px-4 [&_td]:py-2 [&_td]:text-gray-200 [&_td]:border-r [&_td]:border-emerald-500/10 [&_td:last-child]:border-r-0" />
+                              <div className="overflow-x-auto my-4">
+                                <div dangerouslySetInnerHTML={{ __html: value }} className="[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_table]:bg-transparent [&_thead]:bg-transparent [&_tbody]:bg-transparent [&_tr]:border-b [&_tr]:border-gray-600 [&_th]:px-6 [&_th]:py-4 [&_th]:text-left [&_th]:font-semibold [&_th]:text-gray-300 [&_th]:bg-transparent [&_th]:border-b-2 [&_th]:border-gray-500 [&_td]:px-6 [&_td]:py-4 [&_td]:text-gray-300 [&_td]:bg-transparent" />
                               </div>
                             );
                           }
                           return <div dangerouslySetInnerHTML={{ __html: value }} />;
                         },
                         table: ({node, ...props}: any) => (
-                          <div className="overflow-x-auto my-4 rounded-lg border border-emerald-500/30 bg-black/20">
-                            <table className="w-full border-collapse text-sm" {...props} />
+                          <div className="overflow-x-auto my-4">
+                            <table className="w-full border-collapse text-sm bg-transparent" {...props} />
                           </div>
                         ),
                         thead: ({node, ...props}: any) => (
-                          <thead className="bg-emerald-500/20 border-b-2 border-emerald-500/40" {...props} />
+                          <thead className="bg-transparent" {...props} />
                         ),
                         tbody: ({node, ...props}: any) => (
-                          <tbody className="divide-y divide-emerald-500/20" {...props} />
+                          <tbody className="bg-transparent" {...props} />
                         ),
                         tr: ({node, ...props}: any) => (
-                          <tr className="hover:bg-emerald-500/10 transition-colors" {...props} />
+                          <tr className="border-b border-gray-600" {...props} />
                         ),
                         th: ({node, ...props}: any) => (
-                          <th className="px-4 py-2 text-left font-bold text-emerald-300 border-r border-emerald-500/20 last:border-r-0 whitespace-nowrap" {...props} />
+                          <th className="px-6 py-4 text-left font-semibold text-gray-300 bg-transparent border-b-2 border-gray-500" {...props} />
                         ),
                         td: ({node, ...props}: any) => (
-                          <td className="px-4 py-2 text-gray-200 border-r border-emerald-500/10 last:border-r-0 whitespace-nowrap" {...props} />
+                          <td className="px-6 py-4 text-gray-300 bg-transparent" {...props} />
                         ),
                         code: ({node, inline, ...props}: any) => 
                           inline ? (
