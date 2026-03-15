@@ -136,6 +136,9 @@ const App: React.FC = () => {
   }, [state.messages, state.history, currentSessionId]);
 
   const handleNewChat = () => {
+    // Stop any ongoing speech synthesis
+    window.speechSynthesis.cancel();
+    
     setCurrentSessionId(null);
     setDbSessionId(null); // Reset database session ID
     setState({
