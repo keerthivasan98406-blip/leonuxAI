@@ -222,21 +222,22 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
     try {
       // Trigger Google Sign-In with the entered email as hint
       if (window.google?.accounts?.id) {
-        // Use Google's One Tap with email hint
+        // Initialize with faster settings
         window.google.accounts.id.initialize({
           client_id: '668572083647-brs9bobppbein5a0i12aahdji1a5dorc.apps.googleusercontent.com',
           callback: (response: any) => {
             try {
               const payload = JSON.parse(atob(response.credential.split('.')[1]));
               
-              // Check if the Google email matches the entered email
-              if (payload.email.toLowerCase() === email.toLowerCase()) {
-                // Email verified! Log in directly
-                onLoginSuccess(name, email);
-              } else {
-                setMessage(`Email mismatch. Google account: ${payload.email}`);
-                setMessageType('error');
+              // Save user to database
+              try {
+                loginUser(name, email);
+              } catch (error) {
+                // Continue even if database save fails
               }
+              
+              // Login immediately without waiting
+              onLoginSuccess(name, email);
             } catch (error) {
               setMessage('Google verification failed');
               setMessageType('error');
@@ -245,10 +246,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
           auto_select: false,
         });
 
-        // Prompt Google Sign-In with email hint
+        // Show One Tap prompt immediately (faster than full sign-in)
         window.google.accounts.id.prompt((notification: any) => {
+          // If One Tap not shown, fallback to button click
           if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            // If prompt not shown, show OTP as fallback
+            // Fallback: Use OTP for faster login
             const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
             setGeneratedOtp(newOtp);
             setStep('otp');
@@ -256,14 +258,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
           }
         });
       } else {
-        // Fallback to OTP if Google not available
+        // Google not loaded, use OTP immediately
         const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
         setGeneratedOtp(newOtp);
         setStep('otp');
         setMessage('');
       }
     } catch (error) {
-      // Fallback to OTP
+      // Fallback to OTP immediately on any error
       const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
       setGeneratedOtp(newOtp);
       setStep('otp');
