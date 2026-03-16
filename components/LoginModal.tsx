@@ -207,7 +207,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
     }
     
     // Block emails with random patterns (letters followed by many numbers)
-    if (/[a-z]{2,}[0-9]{3,}/.test(localPart)) {
+    // But allow common patterns like "name123" or "username1234"
+    if (/[a-z]{2,}[0-9]{5,}/.test(localPart)) {
+      // Only block if 5+ consecutive numbers (very suspicious)
       setMessage('Please use a valid email address');
       setMessageType('error');
       return;
