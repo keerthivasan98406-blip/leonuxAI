@@ -213,13 +213,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
       return;
     }
 
-    // For Gmail addresses, require Google Sign-In verification
-    if (domain === 'gmail.com' || domain === 'google.com') {
-      setMessage('For Gmail accounts, please use the Google Sign-In button to verify your email');
-      setMessageType('error');
-      return;
-    }
-
     // Email passed all validations, proceed with OTP
     const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
     setGeneratedOtp(newOtp);
