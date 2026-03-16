@@ -213,45 +213,18 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
       return;
     }
 
-    // Verify email using Google's email verification
-    try {
-      setMessage('Verifying email with Google...');
-      setMessageType('success');
-      
-      // Use Google's email verification API
-      const response = await fetch(`https://www.googleapis.com/oauth2/v1/tokeninfo?email=${encodeURIComponent(email)}`, {
-        method: 'GET'
-      }).catch(() => null);
-
-      // If Google recognizes the email, it's valid
-      if (response && response.ok) {
-        const data = await response.json();
-        
-        // Email is verified by Google
-        const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
-        setGeneratedOtp(newOtp);
-        setStep('otp');
-        setMessage('');
-        return;
-      }
-
-      // If Google doesn't recognize it, try alternative verification
-      const altResponse = await fetch(`https://accounts.google.com/o/oauth2/v2/auth?client_id=668572083647-brs9bobppbein5a0i12aahdji1a5dorc.apps.googleusercontent.com&redirect_uri=http://localhost&response_type=code&scope=email&login_hint=${encodeURIComponent(email)}`, {
-        method: 'HEAD'
-      }).catch(() => null);
-
-      // Email passed validation, proceed with OTP
-      const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
-      setGeneratedOtp(newOtp);
-      setStep('otp');
-      setMessage('');
-    } catch (error) {
-      // If verification service fails, proceed with local validation only
-      const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
-      setGeneratedOtp(newOtp);
-      setStep('otp');
-      setMessage('');
+    // For Gmail addresses, require Google Sign-In verification
+    if (domain === 'gmail.com' || domain === 'google.com') {
+      setMessage('For Gmail accounts, please use the Google Sign-In button to verify your email');
+      setMessageType('error');
+      return;
     }
+
+    // Email passed all validations, proceed with OTP
+    const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    setGeneratedOtp(newOtp);
+    setStep('otp');
+    setMessage('');
   };
 
   const verifyOtp = async () => {
