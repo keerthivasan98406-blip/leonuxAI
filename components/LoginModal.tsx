@@ -189,7 +189,25 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
 
     // Check if email looks suspicious (random characters)
     const localPart = email.split('@')[0];
-    if (/^[0-9]{4,}$/.test(localPart) || /^[a-z]{2,}[0-9]{4,}$/.test(localPart)) {
+    
+    // Block emails that start with numbers (4+ digits at start)
+    if (/^[0-9]{4,}/.test(localPart)) {
+      setMessage('Please use a valid email address');
+      setMessageType('error');
+      return;
+    }
+    
+    // Block emails with mostly numbers (more than 50% numbers)
+    const numberCount = (localPart.match(/[0-9]/g) || []).length;
+    const numberPercentage = (numberCount / localPart.length) * 100;
+    if (numberPercentage > 50) {
+      setMessage('Please use a valid email address');
+      setMessageType('error');
+      return;
+    }
+    
+    // Block emails with random patterns (letters followed by many numbers)
+    if (/[a-z]{2,}[0-9]{3,}/.test(localPart)) {
       setMessage('Please use a valid email address');
       setMessageType('error');
       return;
