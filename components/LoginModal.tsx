@@ -213,11 +213,60 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
       return;
     }
 
-    // Email passed all validations, proceed with OTP
-    const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
-    setGeneratedOtp(newOtp);
-    setStep('otp');
-    setMessage('');
+    // Verify email with Google Sign-In
+    setMessage('Verifying with Google...');
+    setMessageType('success');
+    
+    try {
+      // Trigger Google Sign-In with the entered email as hint
+      if (window.google?.accounts?.id) {
+        // Use Google's One Tap with email hint
+        window.google.accounts.id.initialize({
+          client_id: '668572083647-brs9bobppbein5a0i12aahdji1a5dorc.apps.googleusercontent.com',
+          callback: (response: any) => {
+            try {
+              const payload = JSON.parse(atob(response.credential.split('.')[1]));
+              
+              // Check if the Google email matches the entered email
+              if (payload.email.toLowerCase() === email.toLowerCase()) {
+                // Email verified! Log in directly
+                onLoginSuccess(name, email);
+              } else {
+                setMessage(`Email mismatch. Google account: ${payload.email}`);
+                setMessageType('error');
+              }
+            } catch (error) {
+              setMessage('Google verification failed');
+              setMessageType('error');
+            }
+          },
+          auto_select: false,
+        });
+
+        // Prompt Google Sign-In with email hint
+        window.google.accounts.id.prompt((notification: any) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            // If prompt not shown, show OTP as fallback
+            const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
+            setGeneratedOtp(newOtp);
+            setStep('otp');
+            setMessage('');
+          }
+        });
+      } else {
+        // Fallback to OTP if Google not available
+        const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
+        setGeneratedOtp(newOtp);
+        setStep('otp');
+        setMessage('');
+      }
+    } catch (error) {
+      // Fallback to OTP
+      const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
+      setGeneratedOtp(newOtp);
+      setStep('otp');
+      setMessage('');
+    }
   };
 
   const verifyOtp = async () => {
