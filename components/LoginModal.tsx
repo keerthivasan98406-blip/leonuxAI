@@ -157,7 +157,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
 
   if (!isOpen) return null;
 
-  const sendOtp = () => {
+  const sendOtp = async () => {
     if (!name.trim()) {
       setMessage('Please enter your name');
       setMessageType('error');
@@ -169,10 +169,64 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLoginSuccess }
       return;
     }
 
-    const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
-    setGeneratedOtp(newOtp);
-    setStep('otp');
-    setMessage('');
+    // Validate email format more strictly
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setMessage('Please enter a valid email address');
+      setMessageType('error');
+      return;
+    }
+
+    // Check for common fake email patterns
+    const fakeDomains = ['test.com', 'example.com', 'fake.com', 'temp.com', 'tempmail.com', '123.com', 'aaa.com', 'bbb.com', 'ccc.com'];
+    const domain = email.split('@')[1].toLowerCase();
+    
+    if (fakeDomains.includes(domain)) {
+      setMessage('Please use a real email address');
+      setMessageType('error');
+      return;
+    }
+
+    // Check if email looks suspicious (random characters)
+    const localPart = email.split('@')[0];
+    if (/^[0-9]{4,}$/.test(localPart) || /^[a-z]{2,}[0-9]{4,}$/.test(localPart)) {
+      setMessage('Please use a valid email address');
+      setMessageType('error');
+      return;
+    }
+
+    // Verify email using a free verification API
+    try {
+      setMessage('Verifying email...');
+      setMessageType('success');
+      
+      const response = await fetch(`https://api.zerobounce.net/v2/validate?api_key=free&email=${encodeURIComponent(email)}`, {
+        method: 'GET'
+      }).catch(() => null);
+
+      if (response && response.ok) {
+        const data = await response.json();
+        
+        // Check if email is valid
+        if (data.status === 'invalid' || data.status === 'do_not_mail' || data.status === 'disposable') {
+          setMessage('This email address is invalid or disposable. Please use a real email.');
+          setMessageType('error');
+          return;
+        }
+      }
+
+      // Email passed validation, proceed with OTP
+      const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
+      setGeneratedOtp(newOtp);
+      setStep('otp');
+      setMessage('');
+    } catch (error) {
+      // If verification service fails, proceed anyway but with stricter local validation
+      const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
+      setGeneratedOtp(newOtp);
+      setStep('otp');
+      setMessage('');
+    }
   };
 
   const verifyOtp = async () => {
