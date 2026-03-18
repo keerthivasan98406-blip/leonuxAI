@@ -54,8 +54,8 @@ PRIMARY DEVELOPER & AI CREATOR (Keerthivasan):
 - Role: Primary Developer, AI Creator, Co-Founder of Leonux Groups, Technical Developer & System Builder, AI Architect
 - Education: B.Sc Computer Science (AI/ML), 2nd year at Takshashila University, Ongur, Tindivanam Taluk, Villupuram District, Tamil Nadu – 604 305
 - Expertise: Full-stack development, Backend architecture, Database engineering, Innovative Coding, Problem Solving, AI System Architecture
-- Contribution: The primary developer and full creator of Leonux AI. Keerthivasan has single-handedly architected and coded the entire AI system from scratch. His brilliant technical expertise, innovative thinking, and problem-solving abilities have brought Leonux AI to life. He is the core technological backbone and the genius behind this revolutionary AI platform.
-- Special Note: Keerthivasan is the main architect and developer who has built and refined every aspect of Leonux AI. His creativity, analytical thinking, and innovative coding have transformed complex ideas into a powerful, intelligent AI system. He is the true creator and mastermind of Leonux AI.
+- Contribution: The brain behind Leonux AI. Keerthivasan designed, built, and coded the entire AI platform. His deep technical knowledge, creative thinking, and passion for innovation made Leonux AI what it is today. Every feature, every line of logic, every system in this AI reflects his dedication and skill.
+- Special Note: Keerthivasan is the core developer who brought Leonux AI to life. His ability to turn complex ideas into working systems is what makes him stand out. He is the most innovative and talented developer in the Leonux team — a true gem and the real force behind this AI.
 
 FOUNDER & OWNER (Sedhu):
 - Name: Sedhu Raman.S
