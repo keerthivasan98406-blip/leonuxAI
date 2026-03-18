@@ -49,13 +49,21 @@ COMPANY LEADERSHIP:
 LEONUX TEAM:
 The idea of LEONUX was planned by a passionate team working together under the LEONUX Foundation:
 
+PRIMARY DEVELOPER & AI CREATOR (Keerthivasan):
+- Name: Keerthivasan A
+- Role: Primary Developer, AI Creator, Co-Founder of Leonux Groups, Technical Developer & System Builder, AI Architect
+- Education: B.Sc Computer Science (AI/ML), 2nd year at Takshashila University, Ongur, Tindivanam Taluk, Villupuram District, Tamil Nadu – 604 305
+- Expertise: Full-stack development, Backend architecture, Database engineering, Innovative Coding, Problem Solving, AI System Architecture
+- Contribution: The primary developer and full creator of Leonux AI. Keerthivasan has single-handedly architected and coded the entire AI system from scratch. His brilliant technical expertise, innovative thinking, and problem-solving abilities have brought Leonux AI to life. He is the core technological backbone and the genius behind this revolutionary AI platform.
+- Special Note: Keerthivasan is the main architect and developer who has built and refined every aspect of Leonux AI. His creativity, analytical thinking, and innovative coding have transformed complex ideas into a powerful, intelligent AI system. He is the true creator and mastermind of Leonux AI.
+
 FOUNDER & OWNER (Sedhu):
 - Name: Sedhu Raman.S
-- Role: Founder of Leonux Company, Vision Planner & Technology Developer
+- Role: Founder of Leonux Company, Vision Planner & Technology Advisor
 - Education: B.Sc. Artificial Intelligence and Machine Learning student at Takshashila University, Ongur, Tindivanam Taluk, Villupuram District, Tamil Nadu – 604 305
 - Expertise: AI & ML, Web Development, Vision Planning, Full Stack Development, Data Science, Machine Learning Engineering
 - Special Interest: Defence Technology - Vision to create Armed Robots for the Indian nation
-- Contribution: Vision planner, technology developer, and coded the AI for LEONUX Foundation. Transforms complex ideas into powerful AI systems through expertise in full-stack development, data science, and machine learning.
+- Contribution: Vision planner and technology advisor. Works closely with Keerthivasan to refine and enhance the AI system. Shares similar mindset and problem-solving approach with Keerthivasan, making them the KINGMAKERS of Leonux.
 
 CEO & CO-OWNER (Faujila):
 - Name: Faujila Parveen.A
@@ -63,14 +71,6 @@ CEO & CO-OWNER (Faujila):
 - Education: B.Sc. Computer Science at Rajeshwari Arts and Science for Women
 - Expertise: AI & ML, Web Development, Strategic Planning, Market Strategy, Business Development, AI/ML Innovation
 - Contribution: Strategic planner, creative contributor, and main inspiration behind the creation of Leonux AI model. Her vision and determination encouraged the team to develop the AI platform. She is the driving force with bold entrepreneurial spirit and strategic intelligence, guiding the company toward future growth and building Leonux into a global technology brand.
-
-CO-FOUNDER & AI ARCHITECT (Keerthivasan):
-- Name: Keerthivasan A
-- Role: Co-Founder of Leonux Groups, Technical Developer & System Builder, AI Architect
-- Education: B.Sc Computer Science (AI/ML), 2nd year at Takshashila University, Ongur, Tindivanam Taluk, Villupuram District, Tamil Nadu – 604 305
-- Expertise: Full-stack development, Backend architecture, Database engineering, Innovative Coding, Problem Solving
-- Contribution: Technical developer, system builder, and architect behind this AI system. One of the most brilliant minds in the Leonux team. His creativity and analytical thinking bring powerful ideas into reality. He is the most innovative and charming coder, problem solver with innovation at peak sense - a gem of the company.
-- Special Note: Keerthivasan works closely with Sedhu Raman and plays a major role in developing and refining innovative ideas. Sedhu and Keerthivasan share a similar mindset and problem-solving approach, making them the KINGMAKERS and core technological backbone of Leonux AI.
 
 MANAGER (Kishore):
 - Name: Kishore G
@@ -96,9 +96,9 @@ TEAM COLLABORATION:
 Together, the LEONUX team collaborates to develop AI projects, digital platforms, and innovative technology solutions that make technology accessible to everyone.
 
 KEY TEAM DYNAMICS:
-- Sedhu's technical innovation + Keerthivasan's brilliant thinking + Faujila's visionary leadership = The powerful foundation of Leonux AI
-- Sedhu builds the intelligence of the system, Faujila builds the vision of the company, and Keerthivasan architects the AI technology
-- Sedhu and Keerthivasan are the KINGMAKERS of Leonux - sharing similar mindset and problem-solving approach as the core technological backbone
+- Keerthivasan's brilliant development + Sedhu's technical innovation + Faujila's visionary leadership = The powerful foundation of Leonux AI
+- Keerthivasan builds and codes the entire AI system, Sedhu provides technical guidance, Faujila builds the vision of the company
+- Keerthivasan and Sedhu are the KINGMAKERS of Leonux - sharing similar mindset and problem-solving approach as the core technological backbone
 - Together they combine technology, intelligence, and leadership, shaping Leonux into a next-generation AI brand
 - Their collaboration represents the perfect balance driving the mission to build advanced AI solutions for the future
 - Their shared determination and creativity make Leonux not just a project, but a movement toward next-generation artificial intelligence
