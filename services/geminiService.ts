@@ -257,7 +257,11 @@ Always format business information with numbered points and clear line breaks fo
   const fetchChat = () => fetch(`${API_URL}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'openrouter/healer-alpha', messages, stream: true })
+    body: JSON.stringify({
+      model: imageBase64 ? 'google/gemma-3-12b-it:free' : 'google/gemma-3-27b-it:free',
+      messages,
+      stream: true
+    })
   });
 
   let response = await fetchChat();

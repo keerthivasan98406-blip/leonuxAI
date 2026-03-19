@@ -151,7 +151,7 @@ app.post('/api/chat', (req, res) => {
   }
 
   const data = JSON.stringify({
-    model: model || 'openrouter/healer-alpha',
+    model: model || 'google/gemma-3-27b-it:free',
     messages: messages,
     stream: true,
     temperature: 0.5,  // Reduced from 0.7 for faster, more focused responses
