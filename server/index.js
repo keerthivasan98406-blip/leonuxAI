@@ -151,7 +151,7 @@ app.post('/api/chat', (req, res) => {
   }
 
   const data = JSON.stringify({
-    model: model || 'deepseek/deepseek-chat',
+    model: model || 'openrouter/healer-alpha',
     messages: messages,
     stream: true,
     temperature: 0.5,  // Reduced from 0.7 for faster, more focused responses
