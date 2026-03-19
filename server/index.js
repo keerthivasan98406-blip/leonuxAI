@@ -7,7 +7,16 @@ require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://leonuxai.online',
+    'https://www.leonuxai.online',
+    'https://leonuxai-3.onrender.com',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ],
+  credentials: true
+}));
 app.use(express.json({ limit: '25mb' })); // Increased from default 100kb to support large images
 app.use(express.urlencoded({ limit: '25mb', extended: true }));
 
