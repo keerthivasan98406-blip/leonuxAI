@@ -161,10 +161,11 @@ function callOpenRouter(model, messages) {
       }
     };
     const req = https.request(options, (proxyRes) => {
+      console.log(`[OpenRouter] model=${model} status=${proxyRes.statusCode}`);
       resolve({ statusCode: proxyRes.statusCode, proxyRes, data });
     });
-    req.on('error', () => resolve({ statusCode: 500, proxyRes: null, data }));
-    req.setTimeout(25000, () => { req.destroy(); resolve({ statusCode: 504, proxyRes: null, data }); });
+    req.on('error', (err) => { console.error('[OpenRouter] request error:', err.message); resolve({ statusCode: 500, proxyRes: null, data }); });
+    req.setTimeout(25000, () => { console.error('[OpenRouter] timeout'); req.destroy(); resolve({ statusCode: 504, proxyRes: null, data }); });
     req.write(data);
     req.end();
   });
@@ -185,6 +186,8 @@ app.post('/api/chat', async (req, res) => {
     proxyRes.pipe(res);
     return;
   }
+
+  console.error(`[Chat] Failed with status ${statusCode}, API key present: ${!!API_KEY}`);
 
   res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: 'Service temporarily unavailable. Please try again in a moment.' } }] })}\n\n`);
   res.write('data: [DONE]\n\n');
