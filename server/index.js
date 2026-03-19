@@ -182,6 +182,12 @@ app.post('/api/chat', (req, res) => {
     proxyRes.pipe(res);
   });
 
+  // Timeout after 25s — if model hangs, return error instead of blank
+  proxyReq.setTimeout(25000, () => {
+    proxyReq.destroy();
+    if (!res.headersSent) res.status(504).json({ error: 'AI model timed out. Please try again.' });
+  });
+
   proxyReq.on('error', () => {
     if (!res.headersSent) res.status(500).json({ error: 'Failed to connect to AI service' });
   });
