@@ -139,19 +139,26 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
 app.post('/api/chat', (req, res) => {
   const { messages, model } = req.body;
   
-  // Check if request contains images
-  const hasImages = messages.some(m => 
-    Array.isArray(m.content) && m.content.some(c => c.type === 'image_url')
-  );
-  
+  // Free model fallback list
+  const FREE_MODELS = [
+    'google/gemma-3-27b-it:free',
+    'google/gemma-3-12b-it:free',
+    'meta-llama/llama-4-scout:free',
+    'meta-llama/llama-4-maverick:free',
+    'deepseek/deepseek-chat:free',
+    'mistralai/mistral-7b-instruct:free',
+  ];
+
   const API_KEY = process.env.OPENROUTER_API_KEY;
   
+  const selectedModel = model || FREE_MODELS[0];
+
   if (!API_KEY) {
     return res.status(500).json({ error: 'API key not configured' });
   }
 
   const data = JSON.stringify({
-    model: model || 'google/gemma-3-27b-it:free',
+    model: selectedModel,
     messages: messages,
     stream: true,
     temperature: 0.5,  // Reduced from 0.7 for faster, more focused responses
