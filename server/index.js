@@ -136,81 +136,99 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
   }
 });
 
-app.post('/api/chat', (req, res) => {
+const FREE_MODELS = [
+  'google/gemma-3-27b-it:free',
+  'google/gemma-3-12b-it:free',
+  'meta-llama/llama-4-scout:free',
+  'meta-llama/llama-4-maverick:free',
+  'deepseek/deepseek-chat:free',
+  'mistralai/mistral-7b-instruct:free',
+];
+
+// Try OpenRouter with a specific model, returns a Promise<{statusCode, body}>
+function tryModel(model, messages) {
+  return new Promise((resolve) => {
+    const data = JSON.stringify({
+      model,
+      messages,
+      stream: false,
+      temperature: 0.5,
+      max_tokens: 1500,
+      top_p: 0.9,
+    });
+
+    const options = {
+      hostname: 'openrouter.ai',
+      path: '/api/v1/chat/completions',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(data),
+        'Authorization': 'Bearer ' + process.env.OPENROUTER_API_KEY,
+        'HTTP-Referer': 'https://www.leonux.online/',
+        'X-Title': 'Leonux AI'
+      }
+    };
+
+    const req = https.request(options, (proxyRes) => {
+      let body = '';
+      proxyRes.on('data', chunk => body += chunk.toString());
+      proxyRes.on('end', () => resolve({ statusCode: proxyRes.statusCode, body }));
+    });
+    req.on('error', () => resolve({ statusCode: 500, body: '{"error":"connection failed"}' }));
+    req.write(data);
+    req.end();
+  });
+}
+
+app.post('/api/chat', async (req, res) => {
   const { messages, model } = req.body;
-  
-  // Free model fallback list
-  const FREE_MODELS = [
-    'google/gemma-3-27b-it:free',
-    'google/gemma-3-12b-it:free',
-    'meta-llama/llama-4-scout:free',
-    'meta-llama/llama-4-maverick:free',
-    'deepseek/deepseek-chat:free',
-    'mistralai/mistral-7b-instruct:free',
-  ];
 
   const API_KEY = process.env.OPENROUTER_API_KEY;
-  
-  const selectedModel = model || FREE_MODELS[0];
+  if (!API_KEY) return res.status(500).json({ error: 'API key not configured' });
 
-  if (!API_KEY) {
-    return res.status(500).json({ error: 'API key not configured' });
+  // Build model list: requested model first, then fallbacks
+  const hasImages = messages.some(m =>
+    Array.isArray(m.content) && m.content.some(c => c.type === 'image_url')
+  );
+  const visionModels = ['google/gemma-3-12b-it:free', 'meta-llama/llama-4-scout:free', 'meta-llama/llama-4-maverick:free'];
+  const defaultModels = hasImages ? visionModels : FREE_MODELS;
+  const modelsToTry = model ? [model, ...defaultModels.filter(m => m !== model)] : defaultModels;
+
+  let lastError = null;
+
+  for (const currentModel of modelsToTry) {
+    const { statusCode, body } = await tryModel(currentModel, messages);
+
+    if (statusCode === 429 || statusCode === 503) {
+      lastError = body;
+      continue; // try next model
+    }
+
+    if (statusCode !== 200) {
+      lastError = body;
+      continue; // try next model on other errors too
+    }
+
+    // Success — parse and stream back as SSE
+    try {
+      const parsed = JSON.parse(body);
+      const content = parsed.choices?.[0]?.message?.content || '';
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      res.write(`data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`);
+      res.write('data: [DONE]\n\n');
+      res.end();
+      return;
+    } catch {
+      lastError = body;
+      continue;
+    }
   }
 
-  const data = JSON.stringify({
-    model: selectedModel,
-    messages: messages,
-    stream: true,
-    temperature: 0.5,  // Reduced from 0.7 for faster, more focused responses
-    max_tokens: 1500,  // Reduced from 2048 for faster responses
-    top_p: 0.9,
-    frequency_penalty: 0,
-    presence_penalty: 0
-  });
-
-  const options = {
-    hostname: 'openrouter.ai',
-    path: '/api/v1/chat/completions',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(data),
-      'Authorization': 'Bearer ' + API_KEY,
-      'HTTP-Referer': 'https://www.leonux.online/',
-      'X-Title': 'Leonux AI'
-    }
-  };
-
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-
-  const proxyReq = https.request(options, (proxyRes) => {
-    if (proxyRes.statusCode !== 200) {
-      let errorData = '';
-      proxyRes.on('data', (chunk) => {
-        errorData += chunk.toString();
-      });
-      proxyRes.on('end', () => {
-        if (!res.headersSent) {
-          res.status(proxyRes.statusCode).json({ error: errorData });
-        }
-      });
-      return;
-    }
-    
-    // Pipe the response directly
-    proxyRes.pipe(res);
-  });
-
-  proxyReq.on('error', (error) => {
-    if (!res.headersSent) {
-      res.status(500).json({ error: 'Failed to connect to AI service' });
-    }
-  });
-
-  proxyReq.write(data);
-  proxyReq.end();
+  // All models failed
+  res.status(429).json({ error: 'All free models are rate limited. Please try again in a moment.', details: lastError });
 });
 
 app.listen(PORT, () => {});

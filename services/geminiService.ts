@@ -3,22 +3,6 @@ import { getUserProfile, updateUserProfile, formatUserProfileForAI } from "./use
 
 const API_URL = import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:5000/api`;
 
-// Free models in priority order — text models first, vision-capable ones included
-const FREE_TEXT_MODELS = [
-  'google/gemma-3-27b-it:free',
-  'google/gemma-3-12b-it:free',
-  'meta-llama/llama-4-scout:free',
-  'meta-llama/llama-4-maverick:free',
-  'deepseek/deepseek-chat:free',
-  'mistralai/mistral-7b-instruct:free',
-];
-
-const FREE_VISION_MODELS = [
-  'google/gemma-3-12b-it:free',
-  'meta-llama/llama-4-scout:free',
-  'meta-llama/llama-4-maverick:free',
-];
-
 // Wake up the backend if it's sleeping (Render free tier spins down after inactivity)
 const wakeUpBackend = async (): Promise<void> => {
   try {
@@ -270,33 +254,22 @@ Always format business information with numbered points and clear line breaks fo
       : { role: "user", content: prompt }
   ];
 
-  const models = imageBase64 ? FREE_VISION_MODELS : FREE_TEXT_MODELS;
+  // Server handles model fallback internally — just send the request
+  let response = await fetch(`${API_URL}/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, stream: true })
+  });
 
-  const tryFetch = async (modelList: string[]): Promise<Response> => {
-    for (const model of modelList) {
-      const res = await fetch(`${API_URL}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, messages, stream: true })
-      });
-      if (res.status !== 429 && res.status !== 503) return res;
-      // 429 rate limit or 503 — try next model
-    }
-    // All models exhausted, return last response
-    return fetch(`${API_URL}/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: modelList[0], messages, stream: true })
-    });
-  };
-
-  let response = await tryFetch(models);
-
-  // If 404, backend may be waking up — wait and retry once
+  // If 404/503, backend may be sleeping (Render cold start) — wake and retry once
   if (response.status === 404 || response.status === 503) {
     await wakeUpBackend();
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    response = await tryFetch(models);
+    await new Promise(resolve => setTimeout(resolve, 4000));
+    response = await fetch(`${API_URL}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages, stream: true })
+    });
   }
 
   if (!response.ok) {
