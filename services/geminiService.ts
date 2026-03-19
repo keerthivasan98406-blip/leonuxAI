@@ -145,7 +145,7 @@ ${userContext}`
 
   const messages = [
     systemMessage,
-    ...history.map(h => ({
+    ...history.slice(-6).map(h => ({
       role: h.role === 'model' ? 'assistant' : h.role,
       content: h.parts[0].text
     })),

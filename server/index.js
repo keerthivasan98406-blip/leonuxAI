@@ -149,7 +149,7 @@ app.post('/api/chat', (req, res) => {
     messages,
     stream: true,
     temperature: 0.5,
-    max_tokens: 1024,
+    max_tokens: 800,
     top_p: 0.9,
   });
 
