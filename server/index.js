@@ -136,7 +136,8 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
   }
 });
 
-const MODEL = 'nvidia/nemotron-nano-12b-v2-vl:free';
+const MODEL = 'google/gemma-3-12b-it:free';        // vision + text, free
+const MODEL_TEXT_FAST = 'nvidia/nemotron-3-nano-30b-a3b:free'; // text-only, fast
 
 app.post('/api/chat', (req, res) => {
   const { messages } = req.body;
@@ -144,8 +145,14 @@ app.post('/api/chat', (req, res) => {
   const API_KEY = process.env.OPENROUTER_API_KEY;
   if (!API_KEY) return res.status(500).json({ error: 'API key not configured' });
 
+  // Use vision model if any message contains an image, else use fast text model
+  const hasImages = messages.some(m =>
+    Array.isArray(m.content) && m.content.some(c => c.type === 'image_url')
+  );
+  const selectedModel = hasImages ? MODEL : MODEL_TEXT_FAST;
+
   const data = JSON.stringify({
-    model: MODEL,
+    model: selectedModel,
     messages,
     stream: true,
     temperature: 0.5,
