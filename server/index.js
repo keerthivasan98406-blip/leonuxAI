@@ -137,6 +137,7 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
 });
 
 const FREE_MODELS = [
+  'nvidia/nemotron-nano-12b-v2-vl:free',
   'google/gemma-3-27b-it:free',
   'google/gemma-3-12b-it:free',
   'meta-llama/llama-4-scout:free',
@@ -191,7 +192,7 @@ app.post('/api/chat', async (req, res) => {
   const hasImages = messages.some(m =>
     Array.isArray(m.content) && m.content.some(c => c.type === 'image_url')
   );
-  const visionModels = ['google/gemma-3-12b-it:free', 'meta-llama/llama-4-scout:free', 'meta-llama/llama-4-maverick:free'];
+  const visionModels = ['nvidia/nemotron-nano-12b-v2-vl:free', 'google/gemma-3-12b-it:free', 'meta-llama/llama-4-scout:free', 'meta-llama/llama-4-maverick:free'];
   const defaultModels = hasImages ? visionModels : FREE_MODELS;
   const modelsToTry = model ? [model, ...defaultModels.filter(m => m !== model)] : defaultModels;
 
