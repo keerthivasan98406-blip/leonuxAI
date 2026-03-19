@@ -136,100 +136,61 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
   }
 });
 
-const FREE_MODELS = [
-  'nvidia/nemotron-nano-12b-v2-vl:free',
-  'google/gemma-3-27b-it:free',
-  'google/gemma-3-12b-it:free',
-  'meta-llama/llama-4-scout:free',
-  'meta-llama/llama-4-maverick:free',
-  'deepseek/deepseek-chat:free',
-  'mistralai/mistral-7b-instruct:free',
-];
-
-// Try OpenRouter with a specific model, returns a Promise<{statusCode, body}>
-function tryModel(model, messages) {
-  return new Promise((resolve) => {
-    const data = JSON.stringify({
-      model,
-      messages,
-      stream: false,
-      temperature: 0.5,
-      max_tokens: 1500,
-      top_p: 0.9,
-    });
-
-    const options = {
-      hostname: 'openrouter.ai',
-      path: '/api/v1/chat/completions',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(data),
-        'Authorization': 'Bearer ' + process.env.OPENROUTER_API_KEY,
-        'HTTP-Referer': 'https://www.leonux.online/',
-        'X-Title': 'Leonux AI'
-      }
-    };
-
-    const req = https.request(options, (proxyRes) => {
-      let body = '';
-      proxyRes.on('data', chunk => body += chunk.toString());
-      proxyRes.on('end', () => resolve({ statusCode: proxyRes.statusCode, body }));
-    });
-    req.on('error', () => resolve({ statusCode: 500, body: '{"error":"connection failed"}' }));
-    req.write(data);
-    req.end();
-  });
-}
+const MODEL = 'nvidia/nemotron-nano-12b-v2-vl:free';
 
 app.post('/api/chat', async (req, res) => {
-  const { messages, model } = req.body;
+  const { messages } = req.body;
 
   const API_KEY = process.env.OPENROUTER_API_KEY;
   if (!API_KEY) return res.status(500).json({ error: 'API key not configured' });
 
-  // Build model list: requested model first, then fallbacks
-  const hasImages = messages.some(m =>
-    Array.isArray(m.content) && m.content.some(c => c.type === 'image_url')
-  );
-  const visionModels = ['nvidia/nemotron-nano-12b-v2-vl:free', 'google/gemma-3-12b-it:free', 'meta-llama/llama-4-scout:free', 'meta-llama/llama-4-maverick:free'];
-  const defaultModels = hasImages ? visionModels : FREE_MODELS;
-  const modelsToTry = model ? [model, ...defaultModels.filter(m => m !== model)] : defaultModels;
+  const data = JSON.stringify({
+    model: MODEL,
+    messages,
+    stream: false,
+    temperature: 0.5,
+    max_tokens: 1500,
+    top_p: 0.9,
+  });
 
-  let lastError = null;
-
-  for (const currentModel of modelsToTry) {
-    const { statusCode, body } = await tryModel(currentModel, messages);
-
-    if (statusCode === 429 || statusCode === 503) {
-      lastError = body;
-      continue; // try next model
+  const options = {
+    hostname: 'openrouter.ai',
+    path: '/api/v1/chat/completions',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(data),
+      'Authorization': 'Bearer ' + API_KEY,
+      'HTTP-Referer': 'https://www.leonux.online/',
+      'X-Title': 'Leonux AI'
     }
+  };
 
-    if (statusCode !== 200) {
-      lastError = body;
-      continue; // try next model on other errors too
-    }
+  const proxyReq = https.request(options, (proxyRes) => {
+    let body = '';
+    proxyRes.on('data', chunk => body += chunk.toString());
+    proxyRes.on('end', () => {
+      if (proxyRes.statusCode !== 200) {
+        return res.status(proxyRes.statusCode).json({ error: body });
+      }
+      try {
+        const parsed = JSON.parse(body);
+        const content = parsed.choices?.[0]?.message?.content || '';
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        res.write(`data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`);
+        res.write('data: [DONE]\n\n');
+        res.end();
+      } catch {
+        res.status(500).json({ error: 'Failed to parse AI response' });
+      }
+    });
+  });
 
-    // Success — parse and stream back as SSE
-    try {
-      const parsed = JSON.parse(body);
-      const content = parsed.choices?.[0]?.message?.content || '';
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-      res.write(`data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`);
-      res.write('data: [DONE]\n\n');
-      res.end();
-      return;
-    } catch {
-      lastError = body;
-      continue;
-    }
-  }
-
-  // All models failed
-  res.status(429).json({ error: 'All free models are rate limited. Please try again in a moment.', details: lastError });
+  proxyReq.on('error', () => res.status(500).json({ error: 'Failed to connect to AI service' }));
+  proxyReq.write(data);
+  proxyReq.end();
 });
 
 app.listen(PORT, () => {});
