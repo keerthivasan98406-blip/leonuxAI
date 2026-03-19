@@ -136,17 +136,7 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
   }
 });
 
-const MODEL_VISION = 'google/gemma-3-12b-it:free';   // primary vision model
-const MODEL_TEXT_FAST = 'nvidia/nemotron-3-nano-30b-a3b:free'; // fast text model
-
-// Vision model fallback list — tried in order when rate limited
-const VISION_MODELS = [
-  'google/gemma-3-12b-it:free',
-  'google/gemma-3-27b-it:free',
-  'google/gemma-3-4b-it:free',
-  'mistralai/mistral-small-3.1-24b-instruct:free',
-  'nvidia/nemotron-nano-12b-v2-vl:free',
-];
+const MODEL = 'google/gemma-3-27b-it:free';
 
 function callOpenRouter(model, messages) {
   return new Promise((resolve) => {
@@ -186,39 +176,17 @@ app.post('/api/chat', async (req, res) => {
   const API_KEY = process.env.OPENROUTER_API_KEY;
   if (!API_KEY) return res.status(500).json({ error: 'API key not configured' });
 
-  const hasImages = messages.some(m =>
-    Array.isArray(m.content) && m.content.some(c => c.type === 'image_url')
-  );
-
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  if (!hasImages) {
-    // Fast path — text only, single model
-    const { statusCode, proxyRes } = await callOpenRouter(MODEL_TEXT_FAST, messages);
-    if (statusCode === 200 && proxyRes) {
-      proxyRes.pipe(res);
-    } else {
-      res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: 'Service temporarily unavailable. Please try again.' } }] })}\n\n`);
-      res.write('data: [DONE]\n\n');
-      res.end();
-    }
+  const { statusCode, proxyRes } = await callOpenRouter(MODEL, messages);
+  if (statusCode === 200 && proxyRes) {
+    proxyRes.pipe(res);
     return;
   }
 
-  // Vision path — try each model until one works
-  for (const model of VISION_MODELS) {
-    const { statusCode, proxyRes } = await callOpenRouter(model, messages);
-    if (statusCode === 200 && proxyRes) {
-      proxyRes.pipe(res);
-      return;
-    }
-    // 429/400/503 — try next model
-  }
-
-  // All vision models failed
-  res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: 'Image analysis is temporarily unavailable due to rate limits. Please try again in a moment.' } }] })}\n\n`);
+  res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: 'Service temporarily unavailable. Please try again in a moment.' } }] })}\n\n`);
   res.write('data: [DONE]\n\n');
   res.end();
 });
