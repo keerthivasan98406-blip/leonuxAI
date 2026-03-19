@@ -3,6 +3,15 @@ import { getUserProfile, updateUserProfile, formatUserProfileForAI } from "./use
 
 const API_URL = import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:5000/api`;
 
+// Wake up the backend if it's sleeping (Render free tier spins down after inactivity)
+const wakeUpBackend = async (): Promise<void> => {
+  try {
+    await fetch(`${API_URL}/health`, { method: 'GET' });
+  } catch {
+    // Ignore errors - just trying to wake it up
+  }
+};
+
 export const chatWithLeonux = async (
   prompt: string,
   history: ChatHistoryItem[],
@@ -245,17 +254,20 @@ Always format business information with numbered points and clear line breaks fo
       : { role: "user", content: prompt }
   ];
 
-  const response = await fetch(`${API_URL}/chat`, {
+  const fetchChat = () => fetch(`${API_URL}/chat`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: 'openrouter/healer-alpha',
-      messages: messages,
-      stream: true
-    })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: 'deepseek/deepseek-chat', messages, stream: true })
   });
+
+  let response = await fetchChat();
+
+  // If 404, backend may be waking up — wait and retry once
+  if (response.status === 404 || response.status === 503) {
+    await wakeUpBackend();
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    response = await fetchChat();
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
