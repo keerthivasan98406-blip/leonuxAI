@@ -138,7 +138,7 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
 
 const MODEL = 'nvidia/nemotron-nano-12b-v2-vl:free';
 
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', (req, res) => {
   const { messages } = req.body;
 
   const API_KEY = process.env.OPENROUTER_API_KEY;
@@ -147,9 +147,9 @@ app.post('/api/chat', async (req, res) => {
   const data = JSON.stringify({
     model: MODEL,
     messages,
-    stream: false,
+    stream: true,
     temperature: 0.5,
-    max_tokens: 1500,
+    max_tokens: 1024,
     top_p: 0.9,
   });
 
@@ -166,29 +166,26 @@ app.post('/api/chat', async (req, res) => {
     }
   };
 
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
   const proxyReq = https.request(options, (proxyRes) => {
-    let body = '';
-    proxyRes.on('data', chunk => body += chunk.toString());
-    proxyRes.on('end', () => {
-      if (proxyRes.statusCode !== 200) {
-        return res.status(proxyRes.statusCode).json({ error: body });
-      }
-      try {
-        const parsed = JSON.parse(body);
-        const content = parsed.choices?.[0]?.message?.content || '';
-        res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
-        res.write(`data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`);
-        res.write('data: [DONE]\n\n');
-        res.end();
-      } catch {
-        res.status(500).json({ error: 'Failed to parse AI response' });
-      }
-    });
+    if (proxyRes.statusCode !== 200) {
+      let errorData = '';
+      proxyRes.on('data', chunk => errorData += chunk.toString());
+      proxyRes.on('end', () => {
+        if (!res.headersSent) res.status(proxyRes.statusCode).json({ error: errorData });
+      });
+      return;
+    }
+    proxyRes.pipe(res);
   });
 
-  proxyReq.on('error', () => res.status(500).json({ error: 'Failed to connect to AI service' }));
+  proxyReq.on('error', () => {
+    if (!res.headersSent) res.status(500).json({ error: 'Failed to connect to AI service' });
+  });
+
   proxyReq.write(data);
   proxyReq.end();
 });
