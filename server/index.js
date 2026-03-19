@@ -136,71 +136,91 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
   }
 });
 
-const MODEL = 'google/gemma-3-12b-it:free';        // vision + text, free
-const MODEL_TEXT_FAST = 'nvidia/nemotron-3-nano-30b-a3b:free'; // text-only, fast
+const MODEL_VISION = 'google/gemma-3-12b-it:free';   // primary vision model
+const MODEL_TEXT_FAST = 'nvidia/nemotron-3-nano-30b-a3b:free'; // fast text model
 
-app.post('/api/chat', (req, res) => {
+// Vision model fallback list — tried in order when rate limited
+const VISION_MODELS = [
+  'google/gemma-3-12b-it:free',
+  'google/gemma-3-27b-it:free',
+  'google/gemma-3-4b-it:free',
+  'mistralai/mistral-small-3.1-24b-instruct:free',
+  'nvidia/nemotron-nano-12b-v2-vl:free',
+];
+
+function callOpenRouter(model, messages) {
+  return new Promise((resolve) => {
+    const data = JSON.stringify({
+      model,
+      messages,
+      stream: true,
+      temperature: 0.5,
+      max_tokens: 800,
+      top_p: 0.9,
+    });
+    const options = {
+      hostname: 'openrouter.ai',
+      path: '/api/v1/chat/completions',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(data),
+        'Authorization': 'Bearer ' + process.env.OPENROUTER_API_KEY,
+        'HTTP-Referer': 'https://www.leonux.online/',
+        'X-Title': 'Leonux AI'
+      }
+    };
+    const req = https.request(options, (proxyRes) => {
+      resolve({ statusCode: proxyRes.statusCode, proxyRes, data });
+    });
+    req.on('error', () => resolve({ statusCode: 500, proxyRes: null, data }));
+    req.setTimeout(25000, () => { req.destroy(); resolve({ statusCode: 504, proxyRes: null, data }); });
+    req.write(data);
+    req.end();
+  });
+}
+
+app.post('/api/chat', async (req, res) => {
   const { messages } = req.body;
 
   const API_KEY = process.env.OPENROUTER_API_KEY;
   if (!API_KEY) return res.status(500).json({ error: 'API key not configured' });
 
-  // Use vision model if any message contains an image, else use fast text model
   const hasImages = messages.some(m =>
     Array.isArray(m.content) && m.content.some(c => c.type === 'image_url')
   );
-  const selectedModel = hasImages ? MODEL : MODEL_TEXT_FAST;
-
-  const data = JSON.stringify({
-    model: selectedModel,
-    messages,
-    stream: true,
-    temperature: 0.5,
-    max_tokens: 800,
-    top_p: 0.9,
-  });
-
-  const options = {
-    hostname: 'openrouter.ai',
-    path: '/api/v1/chat/completions',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(data),
-      'Authorization': 'Bearer ' + API_KEY,
-      'HTTP-Referer': 'https://www.leonux.online/',
-      'X-Title': 'Leonux AI'
-    }
-  };
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  const proxyReq = https.request(options, (proxyRes) => {
-    if (proxyRes.statusCode !== 200) {
-      let errorData = '';
-      proxyRes.on('data', chunk => errorData += chunk.toString());
-      proxyRes.on('end', () => {
-        if (!res.headersSent) res.status(proxyRes.statusCode).json({ error: errorData });
-      });
+  if (!hasImages) {
+    // Fast path — text only, single model
+    const { statusCode, proxyRes } = await callOpenRouter(MODEL_TEXT_FAST, messages);
+    if (statusCode === 200 && proxyRes) {
+      proxyRes.pipe(res);
+    } else {
+      res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: 'Service temporarily unavailable. Please try again.' } }] })}\n\n`);
+      res.write('data: [DONE]\n\n');
+      res.end();
+    }
+    return;
+  }
+
+  // Vision path — try each model until one works
+  for (const model of VISION_MODELS) {
+    const { statusCode, proxyRes } = await callOpenRouter(model, messages);
+    if (statusCode === 200 && proxyRes) {
+      proxyRes.pipe(res);
       return;
     }
-    proxyRes.pipe(res);
-  });
+    // 429/400/503 — try next model
+  }
 
-  // Timeout after 25s — if model hangs, return error instead of blank
-  proxyReq.setTimeout(25000, () => {
-    proxyReq.destroy();
-    if (!res.headersSent) res.status(504).json({ error: 'AI model timed out. Please try again.' });
-  });
-
-  proxyReq.on('error', () => {
-    if (!res.headersSent) res.status(500).json({ error: 'Failed to connect to AI service' });
-  });
-
-  proxyReq.write(data);
-  proxyReq.end();
+  // All vision models failed
+  res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: 'Image analysis is temporarily unavailable due to rate limits. Please try again in a moment.' } }] })}\n\n`);
+  res.write('data: [DONE]\n\n');
+  res.end();
 });
 
 app.listen(PORT, () => {});
