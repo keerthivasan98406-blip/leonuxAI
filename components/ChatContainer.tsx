@@ -125,63 +125,37 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
     }
   };
 
-  // Initialize speech recognition
+  // Speech recognition — converts voice to text in the input box
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        recognitionRef.current = new SpeechRecognition();
-        recognitionRef.current.continuous = true;       // keep listening until stopped
-        recognitionRef.current.interimResults = true;   // show live transcript
-        recognitionRef.current.lang = 'en-US';
+    if (typeof window === 'undefined') return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
 
-        recognitionRef.current.onresult = (event: any) => {
-          let finalTranscript = '';
-          let interimTranscript = '';
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;      // stop after a natural pause
+    recognition.interimResults = false;  // only return final confirmed text
+    recognition.lang = 'en-US';
 
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            const result = event.results[i];
-            if (result.isFinal) {
-              finalTranscript += result[0].transcript;
-            } else {
-              interimTranscript += result[0].transcript;
-            }
-          }
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInputValue(prev => (prev ? prev + ' ' : '') + transcript);
+    };
 
-          // Append final words, show interim as preview
-          setInputValue(prev => {
-            const base = prev.replace(/\u200B.*$/, '').trimEnd(); // strip previous interim
-            if (finalTranscript) {
-              return (base ? base + ' ' : '') + finalTranscript.trim();
-            }
-            // Show interim with a zero-width space marker so we can strip it next update
-            return (base ? base + ' ' : '') + interimTranscript + '\u200B' + interimTranscript;
-          });
-        };
-
-        recognitionRef.current.onerror = (event: any) => {
-          setIsListening(false);
-          if (event.error === 'not-allowed') {
-            alert('Microphone access denied. Please allow microphone access in your browser settings.');
-          } else if (event.error === 'no-speech') {
-            // silently stop — user just didn't speak
-          } else if (event.error !== 'aborted') {
-            console.warn('[Mic] error:', event.error);
-          }
-        };
-
-        recognitionRef.current.onend = () => {
-          setIsListening(false);
-          // Clean up any leftover interim marker
-          setInputValue(prev => prev.replace(/\u200B.*$/, '').trim());
-        };
+    recognition.onerror = (event: any) => {
+      setIsListening(false);
+      if (event.error === 'not-allowed') {
+        alert('Microphone access denied. Please allow microphone access in your browser settings.');
       }
-    }
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
 
     return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
+      recognition.abort();
     };
   }, []);
 
@@ -190,18 +164,15 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
       alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
       return;
     }
-
     if (isListening) {
       recognitionRef.current.stop();
       setIsListening(false);
     } else {
-      // Clear any stale interim markers before starting
-      setInputValue(prev => prev.replace(/\u200B.*$/, '').trim());
       try {
         recognitionRef.current.start();
         setIsListening(true);
       } catch (e) {
-        // Already started — ignore
+        // recognition already running
       }
     }
   };
