@@ -125,55 +125,81 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
     }
   };
 
-  // Speech recognition — converts voice to text in the input box
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+  // Keep a ref to latest inputValue to avoid stale closure in onresult
+  const inputValueRef = useRef(inputValue);
+  useEffect(() => { inputValueRef.current = inputValue; }, [inputValue]);
 
+  const getSpeechRecognition = () => {
+    return (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition || null;
+  };
+
+  const toggleVoiceInput = () => {
+    const SpeechRecognition = getSpeechRecognition();
+    if (!SpeechRecognition) {
+      alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+      return;
+    }
+
+    // If already listening, stop
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+        recognitionRef.current = null;
+      }
+      setIsListening(false);
+      return;
+    }
+
+    // Create a fresh instance every time (required — can't reuse after onend)
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;      // stop after a natural pause
-    recognition.interimResults = false;  // only return final confirmed text
+    recognition.continuous = false;
+    recognition.interimResults = true;
     recognition.lang = 'en-US';
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setInputValue(prev => (prev ? prev + ' ' : '') + transcript);
+      let interim = '';
+      let final = '';
+      for (let i = 0; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          final += event.results[i][0].transcript;
+        } else {
+          interim += event.results[i][0].transcript;
+        }
+      }
+      // Show final text; fall back to interim while still speaking
+      const spoken = (final || interim).trim();
+      if (spoken) {
+        const base = inputValueRef.current.replace(/\[listening\.\.\.\].*$/, '').trimEnd();
+        if (final) {
+          setInputValue((base ? base + ' ' : '') + final.trim());
+        } else {
+          setInputValue((base ? base + ' ' : '') + '[listening...] ' + interim);
+        }
+      }
     };
 
     recognition.onerror = (event: any) => {
       setIsListening(false);
+      recognitionRef.current = null;
       if (event.error === 'not-allowed') {
         alert('Microphone access denied. Please allow microphone access in your browser settings.');
       }
     };
 
     recognition.onend = () => {
+      // Clean up the [listening...] placeholder if it's still there
+      setInputValue(prev => prev.replace(/\[listening\.\.\.\].*$/, '').trim());
       setIsListening(false);
+      recognitionRef.current = null;
     };
 
     recognitionRef.current = recognition;
-
-    return () => {
-      recognition.abort();
-    };
-  }, []);
-
-  const toggleVoiceInput = () => {
-    if (!recognitionRef.current) {
-      alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
-      return;
-    }
-    if (isListening) {
-      recognitionRef.current.stop();
+    try {
+      recognition.start();
+      setIsListening(true);
+    } catch (e) {
       setIsListening(false);
-    } else {
-      try {
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch (e) {
-        // recognition already running
-      }
+      recognitionRef.current = null;
     }
   };
 
