@@ -131,28 +131,49 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
         recognitionRef.current = new SpeechRecognition();
-        recognitionRef.current.continuous = false;
-        recognitionRef.current.interimResults = true;
+        recognitionRef.current.continuous = true;       // keep listening until stopped
+        recognitionRef.current.interimResults = true;   // show live transcript
         recognitionRef.current.lang = 'en-US';
 
         recognitionRef.current.onresult = (event: any) => {
-          const transcript = Array.from(event.results)
-            .map((result: any) => result[0])
-            .map((result: any) => result.transcript)
-            .join('');
-          
-          setInputValue(transcript);
+          let finalTranscript = '';
+          let interimTranscript = '';
+
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const result = event.results[i];
+            if (result.isFinal) {
+              finalTranscript += result[0].transcript;
+            } else {
+              interimTranscript += result[0].transcript;
+            }
+          }
+
+          // Append final words, show interim as preview
+          setInputValue(prev => {
+            const base = prev.replace(/\u200B.*$/, '').trimEnd(); // strip previous interim
+            if (finalTranscript) {
+              return (base ? base + ' ' : '') + finalTranscript.trim();
+            }
+            // Show interim with a zero-width space marker so we can strip it next update
+            return (base ? base + ' ' : '') + interimTranscript + '\u200B' + interimTranscript;
+          });
         };
 
         recognitionRef.current.onerror = (event: any) => {
           setIsListening(false);
           if (event.error === 'not-allowed') {
             alert('Microphone access denied. Please allow microphone access in your browser settings.');
+          } else if (event.error === 'no-speech') {
+            // silently stop — user just didn't speak
+          } else if (event.error !== 'aborted') {
+            console.warn('[Mic] error:', event.error);
           }
         };
 
         recognitionRef.current.onend = () => {
           setIsListening(false);
+          // Clean up any leftover interim marker
+          setInputValue(prev => prev.replace(/\u200B.*$/, '').trim());
         };
       }
     }
@@ -174,8 +195,14 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
       recognitionRef.current.stop();
       setIsListening(false);
     } else {
-      recognitionRef.current.start();
-      setIsListening(true);
+      // Clear any stale interim markers before starting
+      setInputValue(prev => prev.replace(/\u200B.*$/, '').trim());
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (e) {
+        // Already started — ignore
+      }
     }
   };
 
