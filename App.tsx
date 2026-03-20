@@ -58,6 +58,7 @@ const App: React.FC = () => {
   const [chatSessions, setChatSessions] = useState<ChatSession[]>(loadChatSessions);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [dbSessionId, setDbSessionId] = useState<string | null>(null); // MongoDB session ID
+  const [lastGeneratedHtml, setLastGeneratedHtml] = useState<string | null>(null); // for iterative code edits
   
   // Check authentication on mount
   useEffect(() => {
@@ -136,11 +137,10 @@ const App: React.FC = () => {
   }, [state.messages, state.history, currentSessionId]);
 
   const handleNewChat = () => {
-    // Stop any ongoing speech synthesis
     window.speechSynthesis.cancel();
-    
     setCurrentSessionId(null);
-    setDbSessionId(null); // Reset database session ID
+    setDbSessionId(null);
+    setLastGeneratedHtml(null);
     setState({
       messages: [getWelcomeMessage()],
       history: [],
@@ -264,7 +264,21 @@ const App: React.FC = () => {
     try {
       // ── Code mode: build a website ──────────────────────────────────────
       if (codeMode) {
-        const codePrompt = `You are an expert web developer. The user wants you to build a complete, beautiful, single-file HTML website.
+        const codePrompt = lastGeneratedHtml
+          ? `You are an expert web developer. The user wants to modify an existing website.
+Here is the current HTML code:
+\`\`\`html
+${lastGeneratedHtml}
+\`\`\`
+
+User's change request: "${input}"
+
+Rules:
+- Return the COMPLETE updated HTML file with the requested changes applied.
+- Return ONLY raw HTML. No markdown, no explanation, no code fences.
+- Keep everything that wasn't mentioned — only apply the requested changes.
+- The page must remain fully functional and self-contained.`
+          : `You are an expert web developer. The user wants you to build a complete, beautiful, single-file HTML website.
 User request: "${input}"
 
 Rules:
@@ -279,7 +293,7 @@ Rules:
           messages: [...prev.messages, {
             id: leonuxMessageId,
             role: MessageRole.LEONUX,
-            content: 'Building your website...',
+            content: lastGeneratedHtml ? 'Applying your changes...' : 'Building your website...',
             timestamp: new Date(),
             isStreaming: true
           }]
@@ -297,12 +311,14 @@ Rules:
           .replace(/```\s*$/i, '')
           .trim();
 
+        setLastGeneratedHtml(cleaned);
+
         setState(prev => ({
           ...prev,
           isLoading: false,
           messages: prev.messages.map(m =>
             m.id === leonuxMessageId
-              ? { ...m, content: "Here's your website — live preview below:", isStreaming: false, parts: [{ code: cleaned }] }
+              ? { ...m, content: lastGeneratedHtml ? "Done — changes applied:" : "Here's your website — live preview below:", isStreaming: false, parts: [{ code: cleaned }] }
               : m
           )
         }));
