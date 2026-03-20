@@ -70,7 +70,7 @@ app.get('/api/health', (req, res) => {
     status: 'OK',
     message: 'Leonux AI Backend is running',
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    hasApiKey: !!process.env.OPENROUTER_API_KEY
+    hasApiKey: !!process.env.AICC_API_KEY
   });
 });
 
@@ -140,9 +140,9 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
   }
 });
 
-const MODEL = 'google/gemma-3-27b-it:free';
+const MODEL = 'gpt-4o-mini';
 
-function callOpenRouter(messages) {
+function callAICC(messages) {
   return new Promise((resolve) => {
     const data = JSON.stringify({
       model: MODEL,
@@ -153,27 +153,25 @@ function callOpenRouter(messages) {
       top_p: 0.9,
     });
     const options = {
-      hostname: 'openrouter.ai',
-      path: '/api/v1/chat/completions',
+      hostname: 'api.ai.cc',
+      path: '/v1/chat/completions',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(data),
-        'Authorization': 'Bearer ' + process.env.OPENROUTER_API_KEY,
-        'HTTP-Referer': 'https://leonuxai.online/',
-        'X-Title': 'Leonux AI'
+        'Authorization': 'Bearer ' + process.env.AICC_API_KEY,
       }
     };
     const req = https.request(options, (proxyRes) => {
-      console.log(`[OpenRouter] status=${proxyRes.statusCode}`);
+      console.log(`[AI.CC] status=${proxyRes.statusCode}`);
       resolve({ statusCode: proxyRes.statusCode, proxyRes });
     });
     req.on('error', (err) => {
-      console.error('[OpenRouter] error:', err.message);
+      console.error('[AI.CC] error:', err.message);
       resolve({ statusCode: 500, proxyRes: null });
     });
     req.setTimeout(25000, () => {
-      console.error('[OpenRouter] timeout');
+      console.error('[AI.CC] timeout');
       req.destroy();
       resolve({ statusCode: 504, proxyRes: null });
     });
@@ -183,7 +181,7 @@ function callOpenRouter(messages) {
 }
 
 app.post('/api/chat', async (req, res) => {
-  const API_KEY = process.env.OPENROUTER_API_KEY;
+  const API_KEY = process.env.AICC_API_KEY;
   if (!API_KEY) return res.status(500).json({ error: 'API key not configured' });
 
   const { messages } = req.body;
@@ -193,7 +191,7 @@ app.post('/api/chat', async (req, res) => {
   res.setHeader('Connection', 'keep-alive');
 
   try {
-    const { statusCode, proxyRes } = await callOpenRouter(messages);
+    const { statusCode, proxyRes } = await callAICC(messages);
 
     if (statusCode === 200 && proxyRes) {
       proxyRes.on('error', (err) => {
