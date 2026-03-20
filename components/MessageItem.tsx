@@ -364,6 +364,7 @@ export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) 
                     )}
                   </div>
                 )}
+                {part.video && (
                   <div className="aspect-video bg-black">
                     <video 
                       src={part.video} 
