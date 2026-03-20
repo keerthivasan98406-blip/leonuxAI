@@ -7,7 +7,7 @@ import { processFile, ProcessedFile } from '../services/fileProcessingService';
 interface ChatContainerProps {
   messages: Message[];
   isLoading: boolean;
-  onSend: (text: string, imageBase64?: string, fileContent?: string) => void;
+  onSend: (text: string, imageBase64?: string, fileContent?: string, codeMode?: boolean) => void;
   chatEndRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -18,6 +18,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isCodeMode, setIsCodeMode] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
@@ -26,11 +27,9 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim() && !isLoading && !isProcessing) {
-      // For PPT and images, use vision; for PDF use text content
       const imageData = uploadedFile?.requiresVision ? uploadedFile.content : uploadedImage;
       const textData = uploadedFile && !uploadedFile.requiresVision ? uploadedFile.content : undefined;
-      
-      onSend(inputValue, imageData || undefined, textData);
+      onSend(inputValue, imageData || undefined, textData, isCodeMode);
       setInputValue('');
       setUploadedImage(null);
       setUploadedFile(null);
@@ -310,7 +309,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Type your message..."
+                placeholder={isCodeMode ? "Describe a website to build..." : "Type your message..."}
                 className="flex-1 bg-transparent border-none outline-none resize-none text-sm md:text-[15px] text-white placeholder:text-gray-600 leading-6 max-h-[200px] min-w-0"
                 rows={1}
               />
@@ -327,6 +326,19 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoadin
                 title={isListening ? "Stop recording" : "Voice input"}
               >
                 <i className={`fa-solid ${isListening ? 'fa-stop' : 'fa-microphone'} text-base md:text-lg`}></i>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsCodeMode(m => !m)}
+                className={`flex-shrink-0 p-2 transition-all rounded-lg text-xs font-bold ${
+                  isCodeMode
+                    ? 'text-violet-300 bg-violet-500/20 border border-violet-500/40'
+                    : 'text-gray-500 hover:text-violet-400 hover:bg-violet-500/10'
+                }`}
+                title="Code mode — describe a website and AI builds it"
+              >
+                <i className="fa-solid fa-code text-base md:text-lg"></i>
               </button>
 
               <button

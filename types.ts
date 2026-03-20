@@ -14,6 +14,7 @@ export interface MessagePart {
   text?: string;
   image?: string; // base64 string
   video?: string; // blob URL
+  code?: string;  // full HTML for live preview
   map?: {
     name: string;
     embedUrl: string;

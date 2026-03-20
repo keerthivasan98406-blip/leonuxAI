@@ -204,7 +204,7 @@ const App: React.FC = () => {
     }
   }, [state.messages.length, state.isLoading]);
 
-  const handleSend = async (input: string, imageBase64?: string, fileContent?: string) => {
+  const handleSend = async (input: string, imageBase64?: string, fileContent?: string, codeMode?: boolean) => {
     if (!input.trim() || state.isLoading) return;
 
     // Combine user input with file content if available
@@ -261,9 +261,54 @@ const App: React.FC = () => {
       /^(draw|paint|sketch)\b/i.test(input.toLowerCase())
     );
 
-
-
     try {
+      // ── Code mode: build a website ──────────────────────────────────────
+      if (codeMode) {
+        const codePrompt = `You are an expert web developer. The user wants you to build a complete, beautiful, single-file HTML website.
+User request: "${input}"
+
+Rules:
+- Return ONLY raw HTML. No markdown, no explanation, no code fences.
+- Include all CSS in a <style> tag and all JS in a <script> tag inside the HTML.
+- Make it visually stunning with modern design, gradients, animations.
+- The page must be fully functional and self-contained.`;
+
+        const leonuxMessageId = (Date.now() + 1).toString();
+        setState(prev => ({
+          ...prev,
+          messages: [...prev.messages, {
+            id: leonuxMessageId,
+            role: MessageRole.LEONUX,
+            content: 'Building your website...',
+            timestamp: new Date(),
+            isStreaming: true
+          }]
+        }));
+
+        let fullHtml = '';
+        await chatWithLeonux(codePrompt, [], (text) => {
+          fullHtml = text;
+        });
+
+        // Strip markdown code fences if model added them anyway
+        const cleaned = fullHtml
+          .replace(/^```html\s*/i, '')
+          .replace(/^```\s*/i, '')
+          .replace(/```\s*$/i, '')
+          .trim();
+
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          messages: prev.messages.map(m =>
+            m.id === leonuxMessageId
+              ? { ...m, content: "Here's your website — live preview below:", isStreaming: false, parts: [{ code: cleaned }] }
+              : m
+          )
+        }));
+        return;
+      }
+
       if (locationQuery) {
         // Handle location/map request
         const leonuxPlaceholder: Message = {

@@ -37,6 +37,7 @@ const formatMessageWithCallButtons = (content: string) => {
 export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) => {
   const isLeonux = message.role === MessageRole.LEONUX;
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
   const baseUrl = import.meta.env.BASE_URL || '/';
 
   const handleSpeak = () => {
@@ -308,7 +309,61 @@ export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) 
                     </div>
                   </div>
                 )}
-                {part.video && (
+                {part.code && (
+                  <div className="mt-3 rounded-xl overflow-hidden border border-emerald-500/30 shadow-xl">
+                    {/* Preview toolbar */}
+                    <div className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-emerald-500/20">
+                      <div className="flex items-center gap-2 text-xs text-emerald-400">
+                        <i className="fa-solid fa-code"></i>
+                        <span>Live Preview</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setShowPreview(p => !p)}
+                          className="text-xs px-3 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-all"
+                        >
+                          {showPreview ? 'Show Code' : 'Show Preview'}
+                        </button>
+                        <button
+                          onClick={() => {
+                            const blob = new Blob([part.code!], { type: 'text/html' });
+                            const url = URL.createObjectURL(blob);
+                            window.open(url, '_blank');
+                          }}
+                          className="text-xs px-3 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-all"
+                        >
+                          <i className="fa-solid fa-arrow-up-right-from-square mr-1"></i>Open
+                        </button>
+                        <button
+                          onClick={() => {
+                            const blob = new Blob([part.code!], { type: 'text/html' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'leonux-generated.html';
+                            a.click();
+                          }}
+                          className="text-xs px-3 py-1 rounded-lg bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 transition-all"
+                        >
+                          <i className="fa-solid fa-download mr-1"></i>Download
+                        </button>
+                      </div>
+                    </div>
+                    {showPreview ? (
+                      <iframe
+                        srcDoc={part.code}
+                        className="w-full border-0 bg-white"
+                        style={{ height: '480px' }}
+                        sandbox="allow-scripts allow-same-origin"
+                        title="Live Preview"
+                      />
+                    ) : (
+                      <pre className="bg-[#111] text-emerald-300 text-xs p-4 overflow-auto max-h-96 whitespace-pre-wrap break-words">
+                        {part.code}
+                      </pre>
+                    )}
+                  </div>
+                )}
                   <div className="aspect-video bg-black">
                     <video 
                       src={part.video} 
