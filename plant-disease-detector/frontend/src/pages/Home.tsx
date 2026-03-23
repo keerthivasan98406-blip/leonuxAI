@@ -69,10 +69,9 @@ export default function Home() {
         <div className="relative w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-16 pt-20">
           <div className="max-w-xl">
             {/* Main headline */}
-            <h1 className="text-5xl sm:text-6xl font-black text-white leading-[1.1] mb-5">
-              Leonux AI
-              <br />
-              <span className="text-emerald-400">Plant Disease Detector</span>
+            <h1 className="font-black text-white leading-[1.15] mb-5">
+              <span className="block text-5xl sm:text-6xl">Leonux AI</span>
+              <span className="block text-3xl sm:text-4xl md:text-5xl text-emerald-400">Plant Disease Detector</span>
             </h1>
 
             {/* Sub description */}
