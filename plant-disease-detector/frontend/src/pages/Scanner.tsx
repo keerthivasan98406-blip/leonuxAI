@@ -119,9 +119,14 @@ export default function Scanner() {
       })
       navigate(`/results/${response.data.id}`, { state: response.data })
     } catch (err: unknown) {
-      const msg = axios.isAxiosError(err)
-        ? err.response?.data?.error || `Server error ${err.response?.status}. Please try again.`
-        : 'Analysis failed. Please try again.'
+      let msg = 'Analysis failed. Please try again.'
+      if (axios.isAxiosError(err)) {
+        if (!err.response) {
+          msg = 'Cannot reach the server. Please check your connection or try again later.'
+        } else {
+          msg = err.response.data?.error || `Server error ${err.response.status}. Please try again.`
+        }
+      }
       setError(msg)
     } finally {
       setLoading(false)
