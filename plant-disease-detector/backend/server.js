@@ -12,7 +12,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const PORT = process.env.PORT || 5000
 
-app.use(cors())
+app.use(cors({
+  origin: process.env.FRONTEND_URL ? [process.env.FRONTEND_URL, 'http://localhost:5173'] : '*'
+}))
 app.use(express.json())
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
@@ -86,7 +88,8 @@ app.post('/api/scan', upload.single('image'), async (req, res) => {
     }
 
     const id = uuidv4()
-    const imageUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`
+    const host = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`
+    const imageUrl = `${host}/uploads/${req.file.filename}`
 
     const isHealthy = Boolean(aiResult.isHealthy)
     const rawSeverity = aiResult.disease?.severity
@@ -119,7 +122,8 @@ app.post('/api/scan', upload.single('image'), async (req, res) => {
     console.error('Scan route outer error:', err.message)
     // Even outer errors return a fallback result, never 500
     const id = uuidv4()
-    const imageUrl = req.file ? `http://localhost:${PORT}/uploads/${req.file.filename}` : ''
+    const host = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`
+    const imageUrl = req.file ? `${host}/uploads/${req.file.filename}` : ''
     res.json({
       id,
       imageName: req.file?.originalname || 'unknown',

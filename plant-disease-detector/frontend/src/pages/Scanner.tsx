@@ -6,6 +6,8 @@ import {
 } from 'lucide-react'
 import axios from 'axios'
 
+const API_BASE = import.meta.env.VITE_API_URL || ''
+
 type Mode = 'idle' | 'camera' | 'preview'
 
 const tips = [
@@ -111,7 +113,7 @@ export default function Scanner() {
       const formData = new FormData()
       formData.append('image', imageFile, imageFile.name)
 
-      const response = await axios.post('/api/scan', formData, {
+      const response = await axios.post(`${API_BASE}/api/scan`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 60000
       })
