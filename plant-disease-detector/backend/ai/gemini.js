@@ -10,7 +10,15 @@ const MODELS = [
   'gpt-4-vision-preview',
 ]
 
-const PROMPT = `You are a professional plant pathologist AI. Carefully examine the plant image provided.
+function buildPrompt(lang) {
+  const isTamil = lang === 'ta'
+  const langInstruction = isTamil
+    ? 'IMPORTANT: You MUST respond with all text fields (name, plant, description, symptoms, treatment, medicines, prevention) written in Tamil language (தமிழ்). Only the JSON keys must remain in English.'
+    : 'Respond in English.'
+
+  return `You are a professional plant pathologist AI. Carefully examine the plant image provided.
+
+${langInstruction}
 
 IMPORTANT: First check if the image actually contains a plant (leaf, stem, flower, fruit, crop, tree, grass, etc.).
 - If the image does NOT contain a plant (e.g. it's an animal, person, object, logo, drawing, etc.), respond with exactly: NOT_A_PLANT
@@ -41,20 +49,23 @@ Respond ONLY with this exact JSON structure (no markdown, no extra text) OR the 
   "confidence": 85,
   "isHealthy": false
 }`
+}
 
-export async function analyzeImageWithAI(imagePath) {
+export async function analyzeImageWithAI(imagePath, lang = 'en') {
   const imageBuffer = fs.readFileSync(imagePath)
   const ext = path.extname(imagePath).replace('.', '').toLowerCase()
   const mimeType = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg'
   const base64Image = imageBuffer.toString('base64')
 
-  console.log(`Analyzing image: ${Math.round(imageBuffer.length / 1024)}KB, type: ${mimeType}`)
+  console.log(`Analyzing image: ${Math.round(imageBuffer.length / 1024)}KB, type: ${mimeType}, lang: ${lang}`)
+
+  const prompt = buildPrompt(lang)
 
   let lastError = null
   for (const model of MODELS) {
     try {
       console.log(`Trying model: ${model}`)
-      const result = await callAICC(model, base64Image, mimeType)
+      const result = await callAICC(model, base64Image, mimeType, prompt)
       console.log(`Success with model: ${model}`)
       return result
     } catch (err) {
@@ -69,7 +80,7 @@ export async function analyzeImageWithAI(imagePath) {
   throw new Error(`All models failed. Last: ${lastError?.message?.slice(0, 100)}`)
 }
 
-async function callAICC(model, base64Image, mimeType) {
+async function callAICC(model, base64Image, mimeType, prompt) {
   const url = `${BASE_URL}/chat/completions`
 
   const body = JSON.stringify({
@@ -78,7 +89,7 @@ async function callAICC(model, base64Image, mimeType) {
       {
         role: 'user',
         content: [
-          { type: 'text', text: PROMPT },
+          { type: 'text', text: prompt },
           {
             type: 'image_url',
             image_url: {
@@ -90,6 +101,8 @@ async function callAICC(model, base64Image, mimeType) {
       }
     ],
     temperature: 0.1,
+
+    
     max_tokens: 1500
   })
 

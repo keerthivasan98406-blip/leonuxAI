@@ -1,11 +1,84 @@
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import { CheckCircle, Pill, ShieldCheck, AlertTriangle, ArrowLeft, Camera, ChevronRight, Leaf } from 'lucide-react'
+import { useCallback, useRef, useState } from 'react'
+import { CheckCircle, Pill, ShieldCheck, AlertTriangle, ArrowLeft, Camera, ChevronRight, Leaf, Volume2, VolumeX, Loader2 } from 'lucide-react'
 import SeverityBadge from '../components/SeverityBadge'
 import { ScanResult } from '../types'
+
+const API_BASE = import.meta.env.VITE_API_URL || ''
+
+async function translateText(text: string, targetLang: string): Promise<string> {
+  if (targetLang === 'en') return text
+  try {
+    const res = await fetch(`${API_BASE}/api/translate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, targetLang })
+    })
+    const data = await res.json()
+    return data.translated || text
+  } catch {
+    return text
+  }
+}
+
+// TTS hook using Web Speech API
+function useTTS() {
+  const [speaking, setSpeaking] = useState<string | null>(null)
+  const [translating, setTranslating] = useState<string | null>(null)
+
+  const speak = useCallback(async (id: string, text: string, lang: string) => {
+    window.speechSynthesis.cancel()
+    if (speaking === id) { setSpeaking(null); return }
+
+    setTranslating(id)
+    const finalText = await translateText(text, lang)
+    setTranslating(null)
+
+    const utter = new SpeechSynthesisUtterance(finalText)
+
+    // Pick best available voice for Tamil, fallback to any available
+    if (lang === 'ta') {
+      const voices = window.speechSynthesis.getVoices()
+      const taVoice = voices.find(v =>
+        v.lang.startsWith('ta') || v.name.toLowerCase().includes('tamil')
+      )
+      if (taVoice) {
+        utter.voice = taVoice
+        utter.lang = taVoice.lang
+      } else {
+        // No Tamil voice — use default voice but still speak translated text
+        utter.lang = 'ta-IN'
+      }
+    } else {
+      const voices = window.speechSynthesis.getVoices()
+      const enVoice = voices.find(v => v.lang.startsWith('en'))
+      if (enVoice) utter.voice = enVoice
+      utter.lang = 'en-US'
+    }
+
+    utter.rate = 0.85
+    utter.onend = () => setSpeaking(null)
+    utter.onerror = () => setSpeaking(null)
+    setSpeaking(id)
+
+    // Chrome needs a small delay after getVoices
+    setTimeout(() => window.speechSynthesis.speak(utter), 100)
+  }, [speaking])
+
+  const stop = useCallback(() => {
+    window.speechSynthesis.cancel()
+    setSpeaking(null)
+  }, [])
+
+  return { speaking, translating, speak, stop }
+}
 
 export default function Results() {
   const { state } = useLocation() as { state: ScanResult | null }
   const navigate = useNavigate()
+  const { speaking, translating, speak } = useTTS()
+  const [ttsLang, setTtsLang] = useState<'en' | 'ta'>('en')
+  const [noTamilVoice, setNoTamilVoice] = useState(false)
 
   if (!state) {
     return (
@@ -24,6 +97,27 @@ export default function Results() {
     Low: 'from-emerald-900/80 via-emerald-800/60',
   }
   const gradientClass = severityBg[disease.severity] ?? 'from-emerald-900/80 via-emerald-800/60'
+
+  const SpeakBtn = ({ id, text }: { id: string; text: string }) => (
+    <button
+      onClick={() => speak(id, text, ttsLang)}
+      disabled={translating === id}
+      title={speaking === id ? 'Stop' : ttsLang === 'ta' ? 'தமிழில் கேளுங்கள்' : 'Read aloud'}
+      className={`ml-auto p-1.5 rounded-lg transition-colors ${
+        speaking === id
+          ? 'bg-emerald-100 text-emerald-700'
+          : translating === id
+          ? 'text-amber-500'
+          : 'text-gray-400 hover:text-emerald-600 hover:bg-emerald-50'
+      }`}
+    >
+      {translating === id
+        ? <Loader2 className="w-4 h-4 animate-spin" />
+        : speaking === id
+        ? <VolumeX className="w-4 h-4" />
+        : <Volume2 className="w-4 h-4" />}
+    </button>
+  )
 
   return (
     <div>
@@ -101,6 +195,43 @@ export default function Results() {
           </div>
         </div>
 
+        {/* Language + TTS toggle */}
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          <Volume2 className="w-4 h-4 text-gray-400" />
+          <span className="text-sm text-gray-500 font-medium">Read aloud in:</span>
+          <div className="flex rounded-xl overflow-hidden border border-gray-200">
+            {(['en', 'ta'] as const).map(l => (
+              <button
+                key={l}
+                onClick={() => {
+                  window.speechSynthesis.cancel()
+                  if (l === 'ta') {
+                    const voices = window.speechSynthesis.getVoices()
+                    const hasTamil = voices.some(v => v.lang.startsWith('ta') || v.name.toLowerCase().includes('tamil'))
+                    setNoTamilVoice(!hasTamil)
+                  } else {
+                    setNoTamilVoice(false)
+                  }
+                  setTtsLang(l)
+                }}
+                className={`px-4 py-1.5 text-sm font-semibold transition-colors ${
+                  ttsLang === l
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {l === 'en' ? 'English' : 'தமிழ்'}
+              </button>
+            ))}
+          </div>
+          <span className="text-xs text-gray-400">Click 🔊 on any card to listen</span>
+          {noTamilVoice && (
+            <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg">
+              Tamil voice not found on this device — text will be translated but spoken in default voice
+            </span>
+          )}
+        </div>
+
         {/* Detail grid */}
         <div className="grid md:grid-cols-2 gap-6">
 
@@ -111,6 +242,7 @@ export default function Results() {
                 <AlertTriangle className="w-5 h-5 text-amber-600" />
               </div>
               <h2 className="font-bold text-gray-900">Symptoms</h2>
+              <SpeakBtn id="symptoms" text={`Symptoms. ${disease.symptoms.join('. ')}`} />
             </div>
             <ul className="space-y-2.5">
               {disease.symptoms.map((s, i) => (
@@ -129,6 +261,7 @@ export default function Results() {
                 <CheckCircle className="w-5 h-5 text-emerald-600" />
               </div>
               <h2 className="font-bold text-gray-900">Treatment Steps</h2>
+              <SpeakBtn id="treatment" text={`Treatment Steps. ${disease.treatment.join('. ')}`} />
             </div>
             <ol className="space-y-3">
               {disease.treatment.map((t, i) => (
@@ -149,6 +282,7 @@ export default function Results() {
                 <Pill className="w-5 h-5 text-blue-600" />
               </div>
               <h2 className="font-bold text-gray-900">Recommended Medicines</h2>
+              <SpeakBtn id="medicines" text={`Recommended Medicines. ${disease.medicines.map(m => `${m.name}, dosage ${m.dosage}, frequency ${m.frequency}`).join('. ')}`} />
             </div>
             <div className="space-y-3">
               {disease.medicines.map((m, i) => (
@@ -174,6 +308,7 @@ export default function Results() {
                 <ShieldCheck className="w-5 h-5 text-green-600" />
               </div>
               <h2 className="font-bold text-gray-900">Prevention Tips</h2>
+              <SpeakBtn id="prevention" text={`Prevention Tips. ${disease.prevention.join('. ')}`} />
             </div>
             <ul className="space-y-2.5">
               {disease.prevention.map((p, i) => (

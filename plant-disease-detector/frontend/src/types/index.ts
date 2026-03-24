@@ -24,6 +24,7 @@ export interface ScanResult {
   disease: Disease
   confidence: number
   isHealthy: boolean
+  lang?: string
   timestamp: string
 }
 

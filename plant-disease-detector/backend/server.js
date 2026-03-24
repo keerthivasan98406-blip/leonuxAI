@@ -40,7 +40,8 @@ app.post('/api/scan', upload.single('image'), async (req, res) => {
   try {
     let aiResult
     try {
-      aiResult = await analyzeImageWithAI(req.file.path)
+      const lang = req.body.lang || req.query.lang || 'en'
+      aiResult = await analyzeImageWithAI(req.file.path, lang)
     } catch (aiErr) {
       // If not a plant image, return a clear error to the user
       if (aiErr.code === 'NOT_A_PLANT' || aiErr.message === 'NOT_A_PLANT') {
@@ -88,6 +89,7 @@ app.post('/api/scan', upload.single('image'), async (req, res) => {
     const id = uuidv4()
     const host = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`
     const imageUrl = `${host}/uploads/${req.file.filename}`
+    const lang = req.body.lang || req.query.lang || 'en'
 
     const isHealthy = Boolean(aiResult.isHealthy)
     const rawSeverity = aiResult.disease?.severity
@@ -114,6 +116,7 @@ app.post('/api/scan', upload.single('image'), async (req, res) => {
       disease,
       confidence: Number(aiResult.confidence) || 80,
       isHealthy,
+      lang,
       timestamp: new Date().toISOString()
     })
   } catch (err) {
@@ -167,6 +170,39 @@ app.get('/api/diseases/:id', (req, res) => {
 
 // Silence Chrome DevTools probe
 app.get('/.well-known/appspecific/com.chrome.devtools.json', (req, res) => res.json({}))
+
+// POST /api/translate — translate disease result to target language
+app.post('/api/translate', express.json(), async (req, res) => {
+  const { text, targetLang } = req.body
+  if (!text || !targetLang) return res.status(400).json({ error: 'Missing text or targetLang' })
+
+  const langName = targetLang === 'ta' ? 'Tamil (தமிழ்)' : 'English'
+
+  try {
+    const response = await fetch(`${process.env.AICC_BASE_URL || 'https://api.ai.cc/v1'}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.AICC_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{
+          role: 'user',
+          content: `Translate the following text to ${langName}. Return ONLY the translated text, nothing else:\n\n${text}`
+        }],
+        temperature: 0.1,
+        max_tokens: 1000
+      })
+    })
+    const data = await response.json()
+    const translated = data.choices?.[0]?.message?.content?.trim()
+    if (!translated) return res.status(500).json({ error: 'Translation failed' })
+    res.json({ translated })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
 
