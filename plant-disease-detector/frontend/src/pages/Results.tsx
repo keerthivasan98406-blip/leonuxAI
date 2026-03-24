@@ -21,54 +21,89 @@ async function translateText(text: string, targetLang: string): Promise<string> 
   }
 }
 
-// TTS hook using Web Speech API
+// Split long text into chunks ≤200 chars at sentence boundaries for gTTS URL limit
+function splitChunks(text: string, max = 180): string[] {
+  const sentences = text.split(/(?<=[.!?।])\s+/)
+  const chunks: string[] = []
+  let current = ''
+  for (const s of sentences) {
+    if ((current + ' ' + s).trim().length > max) {
+      if (current) chunks.push(current.trim())
+      current = s
+    } else {
+      current = (current + ' ' + s).trim()
+    }
+  }
+  if (current) chunks.push(current.trim())
+  return chunks.length ? chunks : [text.slice(0, max)]
+}
+
+// Play Tamil audio using Google Translate TTS (supports ta)
+async function speakTamil(text: string, onDone: () => void, onError: () => void) {
+  const chunks = splitChunks(text)
+  let i = 0
+  const playNext = () => {
+    if (i >= chunks.length) { onDone(); return }
+    const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=ta&client=tw-ob&q=${encodeURIComponent(chunks[i])}`
+    const audio = new Audio(url)
+    audio.onended = () => { i++; playNext() }
+    audio.onerror = () => onError()
+    audio.play().catch(() => onError())
+    i++
+  }
+  playNext()
+}
+
+// TTS hook — Google TTS for Tamil, Web Speech API for English
 function useTTS() {
   const [speaking, setSpeaking] = useState<string | null>(null)
   const [translating, setTranslating] = useState<string | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const stop = useCallback(() => {
+    window.speechSynthesis.cancel()
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
+    setSpeaking(null)
+  }, [])
 
   const speak = useCallback(async (id: string, text: string, lang: string) => {
-    window.speechSynthesis.cancel()
-    if (speaking === id) { setSpeaking(null); return }
+    stop()
+    if (speaking === id) return
 
     setTranslating(id)
     const finalText = await translateText(text, lang)
     setTranslating(null)
-
-    const utter = new SpeechSynthesisUtterance(finalText)
-
-    // Pick best available voice for Tamil, fallback to any available
-    if (lang === 'ta') {
-      const voices = window.speechSynthesis.getVoices()
-      const taVoice = voices.find(v =>
-        v.lang.startsWith('ta') || v.name.toLowerCase().includes('tamil')
-      )
-      if (taVoice) {
-        utter.voice = taVoice
-        utter.lang = taVoice.lang
-      } else {
-        // No Tamil voice — use default voice but still speak translated text
-        utter.lang = 'ta-IN'
-      }
-    } else {
-      const voices = window.speechSynthesis.getVoices()
-      const enVoice = voices.find(v => v.lang.startsWith('en'))
-      if (enVoice) utter.voice = enVoice
-      utter.lang = 'en-US'
-    }
-
-    utter.rate = 0.85
-    utter.onend = () => setSpeaking(null)
-    utter.onerror = () => setSpeaking(null)
     setSpeaking(id)
 
-    // Chrome needs a small delay after getVoices
-    setTimeout(() => window.speechSynthesis.speak(utter), 100)
-  }, [speaking])
+    if (lang === 'ta') {
+      await speakTamil(
+        finalText,
+        () => setSpeaking(null),
+        () => {
+          // Fallback to Web Speech if Google TTS blocked
+          const utter = new SpeechSynthesisUtterance(finalText)
+          utter.lang = 'ta-IN'
+          utter.rate = 0.85
+          utter.onend = () => setSpeaking(null)
+          utter.onerror = () => setSpeaking(null)
+          window.speechSynthesis.speak(utter)
+        }
+      )
+    } else {
+      const utter = new SpeechSynthesisUtterance(finalText)
+      const voices = window.speechSynthesis.getVoices()
+      const enVoice = voices.find(v => v.lang.startsWith('en-'))
+      if (enVoice) utter.voice = enVoice
+      utter.lang = 'en-US'
+      utter.rate = 0.9
+      utter.onend = () => setSpeaking(null)
+      utter.onerror = () => setSpeaking(null)
+      setTimeout(() => window.speechSynthesis.speak(utter), 50)
+    }
+  }, [speaking, stop])
 
-  const stop = useCallback(() => {
-    window.speechSynthesis.cancel()
-    setSpeaking(null)
-  }, [])
+  return { speaking, translating, speak, stop }
+}
 
   return { speaking, translating, speak, stop }
 }
@@ -78,7 +113,6 @@ export default function Results() {
   const navigate = useNavigate()
   const { speaking, translating, speak } = useTTS()
   const [ttsLang, setTtsLang] = useState<'en' | 'ta'>('en')
-  const [noTamilVoice, setNoTamilVoice] = useState(false)
 
   if (!state) {
     return (
@@ -203,17 +237,7 @@ export default function Results() {
             {(['en', 'ta'] as const).map(l => (
               <button
                 key={l}
-                onClick={() => {
-                  window.speechSynthesis.cancel()
-                  if (l === 'ta') {
-                    const voices = window.speechSynthesis.getVoices()
-                    const hasTamil = voices.some(v => v.lang.startsWith('ta') || v.name.toLowerCase().includes('tamil'))
-                    setNoTamilVoice(!hasTamil)
-                  } else {
-                    setNoTamilVoice(false)
-                  }
-                  setTtsLang(l)
-                }}
+                onClick={() => { stop(); setTtsLang(l) }}
                 className={`px-4 py-1.5 text-sm font-semibold transition-colors ${
                   ttsLang === l
                     ? 'bg-emerald-600 text-white'
