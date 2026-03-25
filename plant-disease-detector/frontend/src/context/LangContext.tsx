@@ -5,6 +5,7 @@ type Lang = 'en' | 'ta'
 interface LangContextType {
   lang: Lang
   setLang: (l: Lang) => void
+  
   isTamil: boolean
 }
 
