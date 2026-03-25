@@ -78,9 +78,6 @@ export default function Navbar() {
               <span className={`text-xs font-semibold ${isTamil ? 'text-emerald-700' : 'text-gray-400'}`}>தமிழ்</span>
             </div>
 
-            <Link to="/scanner" className="ml-3 btn-primary text-sm py-2 px-5">
-              {isTamil ? 'இப்போது ஸ்கேன் செய்' : 'Scan Now'}
-            </Link>
           </div>
 
           {/* Mobile toggle */}
