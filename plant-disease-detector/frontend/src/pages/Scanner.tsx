@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import axios from 'axios'
 import { useLang } from '../context/LangContext'
+// v2
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 
