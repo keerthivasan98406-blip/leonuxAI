@@ -1,20 +1,32 @@
 services:
+  # Backend API Server
   - type: web
-    name: plant-disease-detector-backend
-    runtime: node
-    rootDir: plant-disease-detector/backend
-    buildCommand: npm install
-    startCommand: node server.js
+    name: leonuxAI-2
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && node index.js
     envVars:
-      - key: NODE_ENV
-        value: production
+      - key: NODE_VERSION
+        value: 20
+      - key: MONGODB_URI
+        value: mongodb+srv://keerthivasan:keerthivasan123456789@cluster0.cjc3t9h.mongodb.net/leonux-ai?retryWrites=true&w=majority
+      - key: AICC_API_KEY
+        sync: false
+      - key: PORT
+        value: 10000
 
-  - type: static
-    name: plant-disease-detector-frontend
-    rootDir: plant-disease-detector/frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
+  # Frontend Static Site
+  - type: web
+    name: leonuxAI-3
+    env: static
+    buildCommand: node verify-env.js && npm ci && npm run build && ls -la dist
+    staticPublishPath: ./dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: VITE_API_URL
+        value: https://leonuxai-2.onrender.com/api

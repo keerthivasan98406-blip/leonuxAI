@@ -1,0 +1,9 @@
+
+{
+  "name": "Leonux AI",
+  "description": "A cutting-edge, futuristic AI assistant capable of advanced reasoning and stunning image generation, powered by the latest Gemini models.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

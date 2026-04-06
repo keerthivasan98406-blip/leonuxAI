@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leonux AI | Neural Hub</title>
+  
+  <!-- Favicon and Icons -->
+  <link rel="icon" type="image/png" href="/leonux-logo.png" sizes="any">
+  <link rel="icon" type="image/png" href="/leonux-logo.png">
+  <link rel="apple-touch-icon" href="/leonux-logo.png">
+  <link rel="shortcut icon" href="/leonux-logo.png" type="image/png">
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Leonux AI - Advanced AI assistant with imaging and motion engines. Chat, analyze images, and generate content with cutting-edge AI technology.">
+  <meta name="keywords" content="AI, Chat, Leonux, Neural Hub, Image Analysis, AI Assistant">
+  <meta name="author" content="Leonux Company">
+  <meta name="theme-color" content="#10b981">
+  
+  <!-- Open Graph Tags for Social Media -->
+  <meta property="og:title" content="Leonux AI | Neural Hub">
+  <meta property="og:description" content="Advanced AI assistant with imaging and motion engines">
+  <meta property="og:image" content="/leonux-logo.png">
+  <meta property="og:url" content="https://leonuxai.online">
+  <meta property="og:type" content="website">
+  
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Leonux AI | Neural Hub">
+  <meta name="twitter:description" content="Advanced AI assistant with imaging and motion engines">
+  <meta name="twitter:image" content="/leonux-logo.png">
+  
+  <!-- Preconnect for faster Google OAuth loading -->
+  <link rel="preconnect" href="https://accounts.google.com">
+  <link rel="dns-prefetch" href="https://accounts.google.com">
+  
+  <!-- Start Single Page Apps for GitHub Pages -->
+  <script type="text/javascript">
+    // Single Page Apps for GitHub Pages
+    // https://github.com/rafgraph/spa-github-pages
+    (function(l) {
+      if (l.search[1] === '/' ) {
+        var decoded = l.search.slice(1).split('&').map(function(s) { 
+          return s.replace(/~and~/g, '&')
+        }).join('?');
+        window.history.replaceState(null, null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+        );
+      }
+    }(window.location))
+  </script>
+  <!-- End Single Page Apps for GitHub Pages -->
+  
+  <!-- Load Google OAuth early without defer -->
+  <script src="https://accounts.google.com/gsi/client" async></script>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      background-color: #212121;
+      color: #e5e7eb;
+      /* Prevent mobile browser from hiding fixed elements */
+      position: fixed;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    #root {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    /* Mobile header specific styles */
+    
+    @media (max-width: 1023px) {
+      .mobile-header-fixed {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 9999 !important;
+        background-color: #111827 !important;
+        border-bottom: 1px solid #374151 !important;
+        transform: translateZ(0); /* Force hardware acceleration */
+        -webkit-transform: translateZ(0);
+        will-change: transform;
+        height: 48px !important; /* Fixed height */
+        min-height: 48px !important;
+        max-height: 48px !important;
+      }
+      
+      /* Ensure content starts below header */
+      .chat-content-mobile {
+        padding-top: 64px !important; /* Extra padding for mobile */
+      }
+      
+      /* Prevent mobile browser address bar from affecting layout */
+      body {
+        height: 100vh;
+        height: -webkit-fill-available;
+      }
+      
+      #root {
+        height: 100vh;
+        height: -webkit-fill-available;
+      }
+    }
+    
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    /* Code block overflow fix */
+    
+    pre, code {
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      word-wrap: break-word !important;
+      white-space: pre-wrap !important;
+    }
+    
+    pre code {
+      display: block !important;
+      padding: 0 !important;
+    }
+    
+    /* Ensure markdown content doesn't overflow */
+    
+    .markdown-content * {
+      max-width: 100% !important;
+      overflow-wrap: break-word !important;
+      word-break: break-word !important;
+    }
+  </style>
+
+
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0"
+  }
+}
+</script>
+  <script type="module" crossorigin src="/assets/index-Bg7SvqHf.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>
